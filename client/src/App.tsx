@@ -1,35 +1,36 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import HeroSection from './components/HeroSection';
+import ExplorePools from './page/ExplorePools';
+import CreatePool from './page/CreatePool';
+import KingOfTheHillSection from './components/KingOfTheHillSection';
+import PoolCardsSection from './components/PoolCardsSection';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App: React.FC = () => {
+  const [activeSection, setActiveSection] = useState("");
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <Router>
+      <div className="bg-slate-900 text-white">
+        <Routes>
+          <Route path="/" element={
+            <>
+              <Navbar activeSection={activeSection} setActiveSection={setActiveSection} />
+              <div className="ml-16">
+                <HeroSection />
+                <KingOfTheHillSection />
+                <PoolCardsSection />
+              </div>
+            </>
+          } />
 
-export default App
+          <Route path="/explore" element={<ExplorePools />} />
+          <Route path="/create" element={<CreatePool />} />
+        </Routes>
+      </div>
+    </Router>
+  );
+};
+
+export default App;
