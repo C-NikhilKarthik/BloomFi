@@ -1,6 +1,6 @@
 {
   "version": "1",
-  "name": "BoomFi",
+  "name": "BloomFi",
   "type": "collection",
   "ignore": [
     "node_modules",
