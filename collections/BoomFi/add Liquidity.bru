@@ -1,0 +1,22 @@
+meta {
+  name: add Liquidity
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:3000/api/user/add/liquidity
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "poolId": "0x59fa488dda749cdd41772bb068bb23ee955a6d7a",
+    "tokens": ["0x8a88124522dbbf1e56352ba3de1d9f78c143751e", "0x94a9d9ac8a22534e3faca9f4e7f2e2cf85d5e4c8"],
+    "amounts": ["1000000000000000000", "2000000000000000000"],
+    "slippage": 0.5,
+    "walletAddress": "0xAD6e634B8A554F23B7bB30DEf9a255d841f4928C",
+    "permit2Signature": null // Optional
+  }
+}
