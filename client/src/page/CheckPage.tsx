@@ -37,6 +37,42 @@ const CheckPage = () => {
         setTimeout(() => setAlert({ type: '', message: '' }), 5000);
     };
 
+    // Mint tokens for a specific token contract
+    const mintTokens = async (tokenContract, amount) => {
+        try {
+            // Reset previous alerts
+            setAlert({ type: '', message: '' });
+
+            // Validate input
+            if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
+                showAlert('error', 'Please enter a valid amount to mint');
+                return;
+            }
+
+            // Convert amount to Wei
+            const amountWei = web3.utils.toWei(amount, 'ether');
+
+            // Mint tokens
+            await tokenContract.methods.mint(account, amountWei)
+                .send({ from: account });
+
+            // Refresh balance
+            const balance = await tokenContract.methods.balanceOf(account).call();
+
+            // Update balance based on which token was minted
+            if (tokenContract._address === TOKEN0_CONTRACT_ADDRESS) {
+                setToken0Balance(web3.utils.fromWei(balance, 'ether'));
+            } else if (tokenContract._address === TOKEN1_CONTRACT_ADDRESS) {
+                setToken1Balance(web3.utils.fromWei(balance, 'ether'));
+            }
+
+            showAlert('success', 'Tokens minted successfully!');
+        } catch (error) {
+            showAlert('error', `Token minting failed: ${error.message}`);
+            console.error(error);
+        }
+    };
+
     // Connect wallet handler
     const connectWallet = useCallback(async () => {
         setIsConnecting(true);
@@ -268,12 +304,20 @@ const CheckPage = () => {
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Token 0 Balance
                             </label>
-                            <input
-                                type="text"
-                                value={token0Balance}
-                                readOnly
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 mb-2"
-                            />
+                            <div className="flex space-x-2 mb-2">
+                                <input
+                                    type="text"
+                                    value={token0Balance}
+                                    readOnly
+                                    className="flex-grow px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                                />
+                                <button
+                                    onClick={() => mintTokens(token0Contract, '100')}
+                                    className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg"
+                                >
+                                    Mint 100
+                                </button>
+                            </div>
                             <input
                                 type="number"
                                 value={amount0}
@@ -288,12 +332,20 @@ const CheckPage = () => {
                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                 Token 1 Balance
                             </label>
-                            <input
-                                type="text"
-                                value={token1Balance}
-                                readOnly
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 mb-2"
-                            />
+                            <div className="flex space-x-2 mb-2">
+                                <input
+                                    type="text"
+                                    value={token1Balance}
+                                    readOnly
+                                    className="flex-grow px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                                />
+                                <button
+                                    onClick={() => mintTokens(token1Contract, '100')}
+                                    className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg"
+                                >
+                                    Mint 100
+                                </button>
+                            </div>
                             <input
                                 type="number"
                                 value={amount1}
