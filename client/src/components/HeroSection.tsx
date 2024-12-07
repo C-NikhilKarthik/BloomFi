@@ -73,7 +73,7 @@ const HeroSection: React.FC = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Link to="/explore">
+              <Link to="/">
                 <Button 
                   variant="outline" 
                   className="bg-slate-800/50 hover:bg-slate-700/70 border-emerald-500/30"

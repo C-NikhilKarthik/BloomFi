@@ -14,7 +14,7 @@ const App: React.FC = () => {
     <Router>
       <div className="bg-slate-900 text-white">
         <Routes>
-          <Route path="/" element={
+          <Route path="/dashboard" element={
             <>
               <Navbar activeSection={activeSection} setActiveSection={setActiveSection} />
               <div className="ml-16">
@@ -25,7 +25,7 @@ const App: React.FC = () => {
             </>
           } />
 
-          <Route path="/explore" element={<ExplorePools />} />
+          <Route path="/" element={<ExplorePools />} />
           <Route path="/create" element={<CreatePool />} />
         </Routes>
       </div>
