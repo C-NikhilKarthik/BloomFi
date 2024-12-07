@@ -20,7 +20,6 @@
     }
 
     button {
-      border: 0;
       cursor: pointer;
       font-size: 16px;
     }
@@ -50,33 +49,12 @@
   <canvas></canvas>
   <div
     id="characterDialogueBox"
-    style="
-      background-color: white;
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      border-top: 4px black solid;
-      display: none;
-      padding: 12px;
-    "
+    class="bg-white absolute bottom-0 z-[5] left-0 right-0 border-t-4 border-black hidden p-3"
   ></div>
 
   <div
     id="houseDialogueBox"
-    style="
-      background-color: rgba(255, 255, 255, 0.681);
-      backdrop-filter: blur(3px);
-      height: 500px;
-      width: 500px;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      border: 4px black solid;
-      display: none;
-      padding: 12px;
-    "
+    class="bg-white/70 backdrop-blur-md h-[500px] w-[500px] absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-4 border-black hidden p-3"
   ></div>
 
   <button
@@ -84,6 +62,13 @@
   >
     Dashboard
   </button>
+
+  <div
+    id="directions"
+    class="bg-white absolute bottom-4 left-1/2 -translate-x-1/2 border-4 border-black p-3"
+  >
+    Click [SpaceBar]
+  </div>
 
   <div id="userInterface" style="display: none">
     <!-- Represents health bar of draggle (enemy) -->
@@ -201,132 +186,155 @@
 
 <div
   id="liquidityModal"
-  class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center"
+  class="fixed inset-0 bg-black bg-opacity-50 hidden items-center z-10 justify-center"
 >
-  <div class="bg-white rounded-lg p-6 w-full">
-    <div class="flex justify-between items-center mb-4">
-      <h2 class="text-2xl font-bold text-gray-800">Liquidity Vault</h2>
-      <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
-        <svg
-          class="w-6 h-6"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+  <div class="bg-white rounded-lg p-6 w-[98vw]">
+    <div id="modalContent" class="relative">
+      <div
+        id="loader"
+        class="hidden font-lg font-bold absolute bg-white h-full w-full text-center flex items-center justify-center"
+      ></div>
+
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold text-gray-800">Liquidity Vault</h2>
+        <button
+          onclick="closeModal()"
+          class="text-gray-500 hover:text-gray-700"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          ></path>
-        </svg>
-      </button>
-    </div>
-
-    <!-- Token Details -->
-    <div class="grid grid-cols-2 gap-4 mb-4">
-      <div class="border rounded-lg p-3 text-center">
-        <div
-          id="token0Image"
-          class="w-16 h-16 mx-auto mb-2 rounded-full bg-gray-200"
-        ></div>
-        <div id="token0Name" class="font-semibold">Token 0</div>
-        <div id="token0Symbol" class="text-sm text-gray-600">SYM0</div>
-        <div id="token0Balance" class="text-xs text-gray-500 mt-1">
-          Balance: 0
-        </div>
-      </div>
-      <div class="border rounded-lg p-3 text-center">
-        <div
-          id="token1Image"
-          class="w-16 h-16 mx-auto mb-2 rounded-full bg-gray-200"
-        ></div>
-        <div id="token1Name" class="font-semibold">Token 1</div>
-        <div id="token1Symbol" class="text-sm text-gray-600">SYM1</div>
-        <div id="token1Balance" class="text-xs text-gray-500 mt-1">
-          Balance: 0
-        </div>
-      </div>
-    </div>
-
-    <!-- Vault Information -->
-    <div class="bg-gray-50 rounded-lg p-4 mb-4 space-y-3">
-      <div class="flex justify-between items-center">
-        <div class="flex items-center">
-          <span class="font-medium">Total Vault Liquidity</span>
-        </div>
-        <span id="totalLiquidity" class="text-gray-700">0 Shares</span>
-      </div>
-      <div class="flex justify-between items-center">
-        <div class="flex items-center">
-          <span class="font-medium">Your Initial Liquidity</span>
-        </div>
-        <span id="initialLiquidity" class="text-gray-700">0</span>
-      </div>
-      <div class="flex justify-between items-center">
-        <div class="flex items-center">
-          <span class="font-medium">Your ROI</span>
-        </div>
-        <span id="roi" class="text-gray-700">N/A</span>
-      </div>
-    </div>
-
-    <!-- Liquidity Management -->
-    <div class="gap-4 flex">
-      <!-- Add Liquidity Section -->
-      <div class="border rounded-lg p-4 bg-gray-50">
-        <h3 class="text-lg font-semibold mb-3 text-gray-800">Add Liquidity</h3>
-        <div class="space-y-3">
-          <input
-            type="number"
-            id="amount0Input"
-            placeholder="Token 0 Amount"
-            class="w-full p-2 border rounded-lg"
-          />
-          <input
-            type="number"
-            id="amount1Input"
-            placeholder="Token 1 Amount"
-            class="w-full p-2 border rounded-lg"
-          />
-          <div class="flex space-x-2">
-            <button
-              onclick="approveTokens()"
-              class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg"
-            >
-              Approve Tokens
-            </button>
-            <button
-              onclick="addLiquidity()"
-              class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg"
-            >
-              Add Liquidity
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Remove Liquidity Section -->
-      <div class="border rounded-lg p-4 bg-gray-50">
-        <h3 class="text-lg font-semibold mb-3 text-gray-800">
-          Remove Liquidity
-        </h3>
-        <div class="space-y-3">
-          <div class="flex items-center">
-            <span id="liquidityShares">Your Liquidity Shares: 0</span>
-          </div>
-          <input
-            type="number"
-            id="sharesToRemoveInput"
-            placeholder="Shares to Remove"
-            class="w-full p-2 border rounded-lg"
-          />
-          <button
-            onclick="removeLiquidity()"
-            class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg"
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Token Details -->
+      <div class="grid grid-cols-2 gap-4 mb-4">
+        <div class="border rounded-lg p-3 text-center">
+          <div
+            id="token0Image"
+            class="w-16 h-16 mx-auto mb-2 bg-center bg-cover rounded-full bg-gray-200"
+          ></div>
+          <div id="token0Name" class="font-semibold">Token 0</div>
+          <div id="token0Symbol" class="text-sm text-gray-600">SYM0</div>
+          <div id="token0Balance" class="text-xs text-gray-500 mt-1">
+            Balance: 0
+          </div>
+        </div>
+        <div class="border rounded-lg p-3 text-center">
+          <div
+            id="token1Image"
+            class="w-16 h-16 mx-auto mb-2 bg-center bg-cover rounded-full bg-gray-200"
+          ></div>
+          <div id="token1Name" class="font-semibold">Token 1</div>
+          <div id="token1Symbol" class="text-sm text-gray-600">SYM1</div>
+          <div id="token1Balance" class="text-xs text-gray-500 mt-1">
+            Balance: 0
+          </div>
+        </div>
+      </div>
+
+      <!-- Vault Information -->
+      <div class="bg-gray-50 rounded-lg p-4 mb-4 space-y-3">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center">
+            <span class="font-medium">Total Vault Liquidity</span>
+          </div>
+          <span id="totalLiquidity" class="text-gray-700">0 Shares</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <div class="flex items-center">
+            <span class="font-medium">Your Initial Liquidity</span>
+          </div>
+          <span id="initialLiquidity" class="text-gray-700">0</span>
+        </div>
+        <div class="flex justify-between items-center">
+          <div class="flex items-center">
+            <span class="font-medium">Your ROI</span>
+          </div>
+          <span id="roi" class="text-gray-700">N/A</span>
+        </div>
+      </div>
+
+      <!-- Liquidity Management -->
+      <div class="gap-4 flex w-full">
+        <!-- Add Liquidity Section -->
+        <div class="border rounded-lg p-4 basis-1/2 bg-gray-50">
+          <h3 class="text-lg font-semibold mb-3 text-gray-800">
+            Add Liquidity
+          </h3>
+          <div class="space-y-3 w-full">
+            <div class="space-x-2 w-full flex">
+              <input
+                type="number"
+                id="amount0Input"
+                placeholder="Token 0 Amount"
+                class="p-2 border flex-1 rounded-lg"
+              />
+              <button
+                onclick="approveToken0()"
+                class="flex-1 bg-amber-500 flex-none hover:bg-amber-600 text-white py-2 px-3 rounded-lg"
+              >
+                Approve
+              </button>
+            </div>
+            <div class="space-x-2 w-full flex">
+              <input
+                type="number"
+                id="amount1Input"
+                placeholder="Token 1 Amount"
+                class="p-2 border flex-1 rounded-lg"
+              />
+              <button
+                onclick="approveToken1()"
+                class="flex-1 bg-yellow-500 flex-none hover:bg-yellow-600 text-white py-2 px-3 rounded-lg"
+              >
+                Approve
+              </button>
+            </div>
+
+            <div class="flex space-x-2">
+              <button
+                onclick="addLiquidity()"
+                class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white py-2 rounded-lg"
+              >
+                Add Liquidity
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Remove Liquidity Section -->
+        <div class="border rounded-lg basis-1/2 p-4 bg-gray-50">
+          <h3 class="text-lg font-semibold mb-3 text-gray-800">
             Remove Liquidity
-          </button>
+          </h3>
+          <div class="space-y-3">
+            <div class="flex items-center">
+              <span id="liquidityShares">Your Liquidity Shares: 0</span>
+            </div>
+            <input
+              type="number"
+              id="sharesToRemoveInput"
+              placeholder="Shares to Remove"
+              class="w-full p-2 border rounded-lg"
+            />
+            <button
+              onclick="removeLiquidity()"
+              class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg"
+            >
+              Remove Liquidity
+            </button>
+          </div>
         </div>
       </div>
     </div>

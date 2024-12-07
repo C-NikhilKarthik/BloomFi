@@ -37,24 +37,26 @@ const c = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let pools = [];
+// let pools = [];
 let loading = false;
 let error = null;
-let treeVal = -1;
+let treeVal = 0;
 let treeNumber = 0;
 
-const vaults = [
-  '0xb1ba9DB205BA7162E46d4330091E8c2F40A65750',
-  '0x9C73505a4CD7FADB38894BB2de2B5B9D3434531D',
-  '0x18b7570a2e89A50a266A0fEB36B0A4bC94BB4b85'
+let pools = [
+  ['0xb1ba9DB205BA7162E46d4330091E8c2F40A65750', '0x5509CDD163d1aFE5Ec9D76876E2e8D05C959A850', '0xcE9210f785bb8cF106C8fbda90037B68d96610c2'],
+  ['0x9C73505a4CD7FADB38894BB2de2B5B9D3434531D', '0x60CAc3ad6be26ab6C9404ac848249AAa757bB39e', '0xc163e1CF682FDD9DfD9b17B60B3Bfd3aebD8eDAc'],
+  ['0x18b7570a2e89A50a266A0fEB36B0A4bC94BB4b85', '0x362b8C5de425b3FB31304EFbafaEF750c4E3489b', '0xE643Ee9825a2e6D263ac9812551928f393eC44c7']
 ]
 
 // import Web3 from 'web3'
 // Contract addresses and ABI configurations
 const NETWORK_ID = '11155111' // Sepolia testnet
-const CSAMM_CONTRACT_ADDRESS = '0xb1ba9DB205BA7162E46d4330091E8c2F40A65750'
-const TOKEN0_CONTRACT_ADDRESS = '0x5509CDD163d1aFE5Ec9D76876E2e8D05C959A850'
-const TOKEN1_CONTRACT_ADDRESS = '0xcE9210f785bb8cF106C8fbda90037B68d96610c2'
+let CSAMM_CONTRACT_ADDRESS = pools[treeVal][0]
+let TOKEN0_CONTRACT_ADDRESS = pools[treeVal][1]
+let TOKEN1_CONTRACT_ADDRESS = pools[treeVal][2]
+
+// console.log(CSAMM_CONTRACT_ADDRESS, TOKEN0_CONTRACT_ADDRESS, TOKEN1_CONTRACT_ADDRESS)
 
 let web3
 let account
@@ -73,6 +75,30 @@ function showModal() {
 function closeModal() {
   modal.classList.add('hidden')
   modal.classList.remove('flex')
+}
+
+function showLoader() {
+  const loaderDiv = document.getElementById('loader'); // Ensure this is a simple text container like a span or div.
+
+  loaderDiv.style.display = 'flex'; // Show the loader
+  loaderDiv.textContent = ''; // Clear previous text (if any)
+
+  let dotCount = 0;
+
+  // Create the animation
+  setInterval(() => {
+    dotCount = (dotCount + 1) % 4; // Cycle between 0, 1, 2, 3
+    loaderDiv.textContent = 'Loading' + '.'.repeat(dotCount); // Update text content
+  }, 500); // Adjust speed as needed (500ms for each update)
+}
+
+
+function hideLoader() {
+  const loaderDiv = document.getElementById('loader');
+  // const contentDiv = document.getElementById('modalContent');
+
+  loaderDiv.style.display = 'none'; // Hide the loader
+  // contentDiv.style.display = 'block'; // Show the content
 }
 
 // Web3 functionality
@@ -112,11 +138,9 @@ async function connectWallet() {
 }
 async function explorePool() {
   showModal()
+  showLoader()
   await connectWallet()
-}
-
-function cancelAction() {
-  closeModal()
+  hideLoader()
 }
 
 async function fetchTokenDetails() {
@@ -124,14 +148,19 @@ async function fetchTokenDetails() {
     // Fetch Token 0 details
     const name0 = await token0Contract.methods.name().call()
     const symbol0 = await token0Contract.methods.symbol().call()
+    const url0 = await token0Contract.methods.tokenImageUrl().call()
+
     document.getElementById('token0Name').textContent = name0
     document.getElementById('token0Symbol').textContent = symbol0
+    document.getElementById('token0Image').style.backgroundImage = `url(${url0})`
 
     // Fetch Token 1 details
     const name1 = await token1Contract.methods.name().call()
     const symbol1 = await token1Contract.methods.symbol().call()
+    const url1 = await token1Contract.methods.tokenImageUrl().call()
     document.getElementById('token1Name').textContent = name1
     document.getElementById('token1Symbol').textContent = symbol1
+    document.getElementById('token1Image').style.backgroundImage = `url(${url1})`
   } catch (error) {
     console.error('Error fetching token details:', error)
   }
@@ -141,6 +170,8 @@ async function refreshBalances() {
   try {
     const balance0 = await token0Contract.methods.balanceOf(account).call()
     const balance1 = await token1Contract.methods.balanceOf(account).call()
+
+    console.log(balance0, balance1)
 
     document.getElementById(
       'token0Balance'
@@ -179,22 +210,39 @@ async function fetchVaultInfo() {
   }
 }
 
-async function approveTokens() {
+async function approveToken0() {
   try {
     const amount0 = document.getElementById('amount0Input').value
-    const amount1 = document.getElementById('amount1Input').value
 
-    if (!amount0 || !amount1) {
-      alert('Please enter amounts for both tokens')
+    if (!amount0) {
+      alert('Please enter amounts for token 0')
       return
     }
 
     const amount0Wei = web3.utils.toWei(amount0, 'ether')
-    const amount1Wei = web3.utils.toWei(amount1, 'ether')
 
     await token0Contract.methods
       .approve(CSAMM_CONTRACT_ADDRESS, amount0Wei)
       .send({ from: account })
+
+    alert('Tokens approved successfully!')
+  } catch (error) {
+    console.error('Approval failed:', error)
+    alert('Failed to approve tokens: ' + error.message)
+  }
+}
+
+async function approveToken1() {
+  try {
+    const amount1 = document.getElementById('amount1Input').value
+
+    if (!amount1) {
+      alert('Please enter amounts for token 1')
+      return
+    }
+
+    const amount1Wei = web3.utils.toWei(amount1, 'ether')
+
     await token1Contract.methods
       .approve(CSAMM_CONTRACT_ADDRESS, amount1Wei)
       .send({ from: account })
@@ -331,11 +379,11 @@ if (window.ethereum) {
 
 
 function fetchPools() {
-  pools = [
-    '0xb1ba9DB205BA7162E46d4330091E8c2F40A65750',
-    '0x9C73505a4CD7FADB38894BB2de2B5B9D3434531D',
-    '0x18b7570a2e89A50a266A0fEB36B0A4bC94BB4b85'
-  ]
+  // pools = [
+  //   '0xb1ba9DB205BA7162E46d4330091E8c2F40A65750',
+  //   '0x9C73505a4CD7FADB38894BB2de2B5B9D3434531D',
+  //   '0x18b7570a2e89A50a266A0fEB36B0A4bC94BB4b85'
+  // ]
 
   treeNumber = pools.length
 
@@ -536,6 +584,30 @@ function setupAndStartGame() {
       renderable.draw();
     });
 
+    const directionsDiv = document.getElementById('directions');
+
+    if (player.interactionAsset === null) {
+      // Make it visible and animate popping in
+      gsap.fromTo(
+        directionsDiv,
+        { y: '100%', opacity: 0 }, // Starting position: bottom and invisible
+        {
+          y: '0%', opacity: 1, duration: 1, ease: 'power2.out', // Ensure the div is visible during the animation
+
+        }
+      );
+    } else {
+      // Animate popping out and then hide it
+      gsap.fromTo(
+        directionsDiv,
+        { y: '0%', opacity: 1 }, // Current visible position
+        {
+          y: '100%', opacity: 0, duration: 1, ease: 'power2.out'
+        }
+      );
+    }
+
+
     let moving = true;
     player.animate = false;
 
@@ -714,54 +786,15 @@ function setupAndStartGame() {
   window.addEventListener('keydown', (e) => {
     if (player.isInteracting) {
       switch (e.key) {
-        case ' ':
+        case 'Escape':
           if (player.interactionAsset.type === 'House') {
             player.isInteracting = false;
             player.interactionAsset.dialogueIndex = 0;
             document.querySelector('#houseDialogueBox').style.display = 'none';
           } else {
-            console.log(treeVal)
-            document.querySelector('#characterDialogueBox').innerHTML = `
-              <div>
-              <h3>${pools[treeVal].name} (${pools[treeVal].symbol})</h3>
-              <p>Chain: ${pools[treeVal].chain}</p>
-              <ul>
-                ${pools[treeVal].poolTokens
-                .map(
-                  (token) => `
-                  <li>
-                    ${token.name} (${token.symbol}): $${token.balanceUSD}
-                  </li>
-                `
-                )
-                .join('')}
-              </ul>
-            </div>
-  `;
-
-            document.querySelector('#deleteTreeButton').addEventListener('click', () => {
-              if (player.interactionAsset) {
-                const treeIndex = treeZones.indexOf(player.interactionAsset);
-                if (treeIndex > -1) {
-                  treeZones[treeIndex].faint();
-                }
-                document.querySelector('#characterDialogueBox').style.display = 'none';
-                player.isInteracting = false;
-                console.log('Tree deleted!');
-              }
-            });
-
-            // document.querySelector('#cancel').addEventListener('click', () => {
-            //   if (player.interactionAsset) {
-            //     // const treeIndex = treeZones.indexOf(player.interactionAsset);
-            //     // if (treeIndex > -1) {
-            //     //   treeZones[treeIndex].faint();
-            //     // }
-            //     document.querySelector('#characterDialogueBox').style.display = 'none';
-            //     player.isInteracting = false;
-            //     console.log('Tree deleted!');
-            //   }
-            // });
+            player.isInteracting = false;
+            player.interactionAsset.dialogueIndex = 0;
+            document.querySelector('#characterDialogueBox').style.display = 'none';
           }
           break;
       }
@@ -778,6 +811,11 @@ function setupAndStartGame() {
           player.isInteracting = true;
         } else {
           console.log(treeVal)
+          CSAMM_CONTRACT_ADDRESS = pools[treeVal][0]
+          TOKEN0_CONTRACT_ADDRESS = pools[treeVal][1]
+          TOKEN1_CONTRACT_ADDRESS = pools[treeVal][2]
+
+          // console.log(CSAMM_CONTRACT_ADDRESS, TOKEN0_CONTRACT_ADDRESS, TOKEN1_CONTRACT_ADDRESS)
 
           //   document.querySelector('#characterDialogueBox').innerHTML = `
           //   <div>
@@ -803,15 +841,15 @@ function setupAndStartGame() {
           // </div>`
 
           document.querySelector('#characterDialogueBox').innerHTML = `
-          <div>
-          <h3>${pools[treeVal]}</h3>
+          <div class="w-full space-y-4">
+          <h3>${pools[treeVal][0]}</h3>
 
 
           <div class="w-full flex justify-between ">
-        <button class="px-4 py-1 border"  id="explore" onclick="explorePool()">Explore</button>
-        <button class="px-4 py-1 border" onclick="cancelAction()">Cancel</button>
-          </div>
-
+            <button class="p-4 py-2 bg-emerald-600 border hover:bg-emerald-700"  id="explore" onclick="explorePool()">Explore</button>
+<button class="p-4 py-2 bg-rose-600 border hover:bg-rose-700">
+  Cancel <span class="text-sm text-gray-300">[Esc]</span>
+</button>          </div>
         </div>`
           document.querySelector('#characterDialogueBox').style.display = 'flex';
           player.isInteracting = true;
