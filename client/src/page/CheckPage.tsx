@@ -312,10 +312,10 @@ const CheckPage = () => {
                                     className="flex-grow px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
                                 />
                                 <button
-                                    onClick={() => mintTokens(token0Contract, '100')}
+                                    onClick={() => mintTokens(token0Contract, '10')}
                                     className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg"
                                 >
-                                    Mint 100
+                                    Mint 10
                                 </button>
                             </div>
                             <input
@@ -340,10 +340,10 @@ const CheckPage = () => {
                                     className="flex-grow px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
                                 />
                                 <button
-                                    onClick={() => mintTokens(token1Contract, '100')}
+                                    onClick={() => mintTokens(token1Contract, '10')}
                                     className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg"
                                 >
-                                    Mint 100
+                                    Mint 10
                                 </button>
                             </div>
                             <input
