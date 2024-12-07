@@ -2,20 +2,41 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Web3 from 'web3';
 import TokenABI from "../abis/Token.json"
 import CSAMMContract from "../abis/CSAMM.json"
-import { ThermometerSnowflake } from 'lucide-react';
+import {
+    ThermometerSnowflake,
+    Coins,
+    Wallet,
+    PlusCircle,
+    MinusCircle,
+    AlertCircle
+} from 'lucide-react';
 
-const CheckPage = () => {
+const LiquidityVault = () => {
     // State variables
     const [web3, setWeb3] = useState(null);
     const [account, setAccount] = useState('');
     const [token0Contract, setToken0Contract] = useState(null);
     const [token1Contract, setToken1Contract] = useState(null);
     const [csammContract, setCsammContract] = useState(null);
+
+    // Balances and amounts
     const [token0Balance, setToken0Balance] = useState('0');
     const [token1Balance, setToken1Balance] = useState('0');
     const [amount0, setAmount0] = useState('');
     const [amount1, setAmount1] = useState('');
-    const [roi, setRoi] = useState(null);
+    const [liquidityShares, setLiquidityShares] = useState('0');
+    const [sharesToRemove, setSharestoRemove] = useState('');
+
+    // Vault and ROI information
+    const [vaultInfo, setVaultInfo] = useState({
+        totalLiquidity: '0',
+        reserve0: '0',
+        reserve1: '0',
+        userInitialLiquidity: '0',
+        roi: null
+    });
+
+    // Alerts and connection states
     const [alert, setAlert] = useState({
         type: '',
         message: ''
@@ -26,7 +47,7 @@ const CheckPage = () => {
         token1: false
     });
 
-    // New state for token details
+    // Token details
     const [token0Details, setToken0Details] = useState({
         name: '',
         symbol: '',
@@ -37,8 +58,6 @@ const CheckPage = () => {
         symbol: '',
         imageUrl: ''
     });
-
-    console.log(token0Details)
 
     // Network and contract configuration
     const NETWORK_ID = '11155111'; // Sepolia testnet
@@ -57,10 +76,8 @@ const CheckPage = () => {
         try {
             const name = await tokenContract.methods.name().call();
             const symbol = await tokenContract.methods.symbol().call();
-
-            // Fetch image URL hash and convert to string
             const imageUrlHash = await tokenContract.methods.tokenImageUrl().call();
-            const imageUrl = imageUrlHash
+            const imageUrl = imageUrlHash;
 
             setTokenDetails({ name, symbol, imageUrl });
         } catch (error) {
@@ -113,12 +130,9 @@ const CheckPage = () => {
             await fetchTokenDetails(token0ContractInstance, setToken0Details);
             await fetchTokenDetails(token1ContractInstance, setToken1Details);
 
-            // Fetch balances
-            const balance0 = await token0ContractInstance.methods.balanceOf(accounts[0]).call();
-            const balance1 = await token1ContractInstance.methods.balanceOf(accounts[0]).call();
-
-            setToken0Balance(web3Instance.utils.fromWei(balance0, 'ether'));
-            setToken1Balance(web3Instance.utils.fromWei(balance1, 'ether'));
+            // Fetch balances and vault info
+            await refreshBalances();
+            await fetchVaultInfo();
 
             showAlert('success', 'Wallet connected successfully!');
         } catch (error) {
@@ -137,9 +151,7 @@ const CheckPage = () => {
                 if (accounts.length > 0) {
                     connectWallet();
                 } else {
-                    setAccount('');
-                    setToken0Balance('0');
-                    setToken1Balance('0');
+                    resetState();
                 }
             };
 
@@ -160,31 +172,70 @@ const CheckPage = () => {
         }
     }, [connectWallet]);
 
+    // Reset state method
+    const resetState = () => {
+        setAccount('');
+        setToken0Balance('0');
+        setToken1Balance('0');
+        setLiquidityShares('0');
+        setVaultInfo({
+            totalLiquidity: '0',
+            reserve0: '0',
+            reserve1: '0',
+            userInitialLiquidity: '0',
+            roi: null
+        });
+        setApprovalStatus({
+            token0: false,
+            token1: false
+        });
+    };
+
+    // Fetch comprehensive vault information
+    const fetchVaultInfo = async () => {
+        if (!csammContract || !account || !web3) return;
+
+        try {
+            const totalLiquidity = await csammContract.methods.totalSupply().call();
+            const reserve0 = await csammContract.methods.reserve0().call();
+            const reserve1 = await csammContract.methods.reserve1().call();
+            const initialLiquidity = await csammContract.methods.initialLiquidity(account).call();
+            const roi = await csammContract.methods.calculateROI(account).call();
+            const userShares = await csammContract.methods.balanceOf(account).call();
+
+            setVaultInfo({
+                totalLiquidity: web3.utils.fromWei(totalLiquidity, 'ether'),
+                reserve0: web3.utils.fromWei(reserve0, 'ether'),
+                reserve1: web3.utils.fromWei(reserve1, 'ether'),
+                userInitialLiquidity: web3.utils.fromWei(initialLiquidity, 'ether'),
+                roi: roi
+            });
+
+            setLiquidityShares(web3.utils.fromWei(userShares, 'ether'));
+        } catch (error) {
+            console.error('Error fetching vault info:', error);
+            showAlert('error', 'Failed to fetch vault information');
+        }
+    };
+
     // Approve tokens for CSAMM contract
     const approveTokens = async () => {
         try {
-            // Reset previous alerts
             setAlert({ type: '', message: '' });
 
-            // Validate inputs
             if (!amount0 || !amount1) {
                 showAlert('error', 'Please enter amounts for both tokens');
                 return;
             }
 
-            // Convert amounts to Wei
             const amount0Wei = web3.utils.toWei(amount0, 'ether');
             const amount1Wei = web3.utils.toWei(amount1, 'ether');
 
-            // Approve Token 0
             await token0Contract.methods.approve(CSAMM_CONTRACT_ADDRESS, amount0Wei)
                 .send({ from: account });
-
-            // Approve Token 1
             await token1Contract.methods.approve(CSAMM_CONTRACT_ADDRESS, amount1Wei)
                 .send({ from: account });
 
-            // Update approval status
             setApprovalStatus({
                 token0: true,
                 token1: true
@@ -200,55 +251,85 @@ const CheckPage = () => {
     // Add liquidity to the pool
     const addLiquidity = async () => {
         try {
-            // Reset previous alerts
             setAlert({ type: '', message: '' });
 
-            // Validate inputs and approvals
             if (!amount0 || !amount1) {
                 showAlert('error', 'Please enter amounts for both tokens');
                 return;
             }
 
-            // Check if tokens are approved
             if (!approvalStatus.token0 || !approvalStatus.token1) {
                 showAlert('error', 'Please approve tokens before adding liquidity');
                 return;
             }
 
-            // Convert amounts to Wei
             const amount0Wei = web3.utils.toWei(amount0, 'ether');
             const amount1Wei = web3.utils.toWei(amount1, 'ether');
 
-            // Add liquidity
             await csammContract.methods.addLiquidity(amount0Wei, amount1Wei)
                 .send({ from: account });
 
-            // Calculate ROI
-            const roiResult = await csammContract.methods.calculateROI(account).call();
+            // Refresh data after adding liquidity
+            await Promise.all([
+                refreshBalances(),
+                fetchVaultInfo()
+            ]);
 
-            // Update ROI and balances
-            setRoi(roiResult);
             showAlert('success', 'Liquidity added successfully!');
-
-            // Refresh balances
-            const balance0 = await token0Contract.methods.balanceOf(account).call();
-            const balance1 = await token1Contract.methods.balanceOf(account).call();
-
-            setToken0Balance(web3.utils.fromWei(balance0, 'ether'));
-            setToken1Balance(web3.utils.fromWei(balance1, 'ether'));
-
-            // Reset approval status
-            setApprovalStatus({
-                token0: false,
-                token1: false
-            });
+            setAmount0('');
+            setAmount1('');
+            setApprovalStatus({ token0: false, token1: false });
         } catch (error) {
             showAlert('error', `Add liquidity failed: ${error.message}`);
             console.error(error);
         }
     };
 
-    // Render component
+    // Remove Liquidity function
+    const removeLiquidity = async () => {
+        try {
+            setAlert({ type: '', message: '' });
+
+            if (!sharesToRemove || parseFloat(sharesToRemove) <= 0) {
+                showAlert('error', 'Please enter a valid number of shares to remove');
+                return;
+            }
+
+            const sharesToRemoveWei = web3.utils.toWei(sharesToRemove, 'ether');
+
+            await csammContract.methods.removeLiquidity(sharesToRemoveWei)
+                .send({ from: account });
+
+            showAlert('success', 'Liquidity removed successfully!');
+
+            await Promise.all([
+                refreshBalances(),
+                fetchVaultInfo()
+            ]);
+
+            setSharestoRemove('');
+        } catch (error) {
+            showAlert('error', `Remove liquidity failed: ${error.message}`);
+            console.error(error);
+        }
+    };
+
+    // Refresh balances
+    const refreshBalances = async () => {
+        if (!token0Contract || !token1Contract || !account) return;
+
+        try {
+            const balance0 = await token0Contract.methods.balanceOf(account).call();
+            const balance1 = await token1Contract.methods.balanceOf(account).call();
+
+            setToken0Balance(web3.utils.fromWei(balance0, 'ether'));
+            setToken1Balance(web3.utils.fromWei(balance1, 'ether'));
+        } catch (error) {
+            console.error('Error refreshing balances:', error);
+        }
+    };
+
+
     return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4 py-8 text-black">
             <div className="w-full max-w-md bg-white shadow-md rounded-lg p-6">
@@ -257,11 +338,12 @@ const CheckPage = () => {
                 {/* Alert Component */}
                 {alert.message && (
                     <div className={`
-                        mb-4 p-4 rounded-lg 
+                        mb-4 p-4 rounded-lg flex items-center
                         ${alert.type === 'error'
                             ? 'bg-red-100 text-red-700'
                             : 'bg-green-100 text-green-700'}
                     `}>
+                        <AlertCircle className="mr-2" />
                         {alert.message}
                     </div>
                 )}
@@ -282,140 +364,124 @@ const CheckPage = () => {
                     </button>
                 </div>
 
-                {/* Token Details Section */}
+                {/* Wallet Connected Content */}
                 {account && (
-                    <div className="grid grid-cols-2 gap-4 mb-4">
-                        {/* Token 0 Details */}
-                        <div className="border rounded-lg p-3 text-center">
-                            {token0Details.imageUrl && (
-                                <img
-                                    src={token0Details.imageUrl}
-                                    alt={`${token0Details.name} logo`}
-                                    className="w-16 h-16 mx-auto mb-2 rounded-full"
-                                />
-                            )}
-                            <div className="font-semibold">{token0Details.name}</div>
-                            <div className="text-sm text-gray-600">{token0Details.symbol}</div>
+                    <>
+                        {/* Token Details */}
+                        <div className="grid grid-cols-2 gap-4 mb-4">
+                            {[
+                                { details: token0Details, balance: token0Balance, type: 'token0' },
+                                { details: token1Details, balance: token1Balance, type: 'token1' }
+                            ].map(({ details, balance, type }) => (
+                                <div key={type} className="border rounded-lg p-3 text-center">
+                                    {details.imageUrl && (
+                                        <img
+                                            src={details.imageUrl}
+                                            alt={`${details.name} logo`}
+                                            className="w-16 h-16 mx-auto mb-2 rounded-full"
+                                        />
+                                    )}
+                                    <div className="font-semibold">{details.name}</div>
+                                    <div className="text-sm text-gray-600">{details.symbol}</div>
+                                    <div className="text-xs text-gray-500 mt-1">Balance: {balance}</div>
+                                </div>
+                            ))}
                         </div>
 
-                        {/* Token 1 Details */}
-                        <div className="border rounded-lg p-3 text-center">
-                            {token1Details.imageUrl && (
-                                <img
-                                    src={token1Details.imageUrl}
-                                    alt={`${token1Details.name} logo`}
-                                    className="w-16 h-16 mx-auto mb-2 rounded-full"
-                                />
-                            )}
-                            <div className="font-semibold">{token1Details.name}</div>
-                            <div className="text-sm text-gray-600">{token1Details.symbol}</div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Connected Account Details */}
-                {account && (
-                    <div className="space-y-4">
-                        {/* Connected Account */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Connected Account
-                            </label>
-                            <input
-                                type="text"
-                                value={account}
-                                readOnly
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
-                            />
-                        </div>
-
-                        {/* Token 0 Balance and Deposit */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                {token0Details.symbol} Balance
-                            </label>
-                            <input
-                                type="text"
-                                value={token0Balance}
-                                readOnly
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 mb-2"
-                            />
-                            <input
-                                type="number"
-                                value={amount0}
-                                onChange={(e) => setAmount0(e.target.value)}
-                                placeholder="Enter amount to deposit"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                            />
-                        </div>
-
-                        {/* Token 1 Balance and Deposit */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                                {token1Details.symbol} Balance
-                            </label>
-                            <input
-                                type="text"
-                                value={token1Balance}
-                                readOnly
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 mb-2"
-                            />
-                            <input
-                                type="number"
-                                value={amount1}
-                                onChange={(e) => setAmount1(e.target.value)}
-                                placeholder="Enter amount to deposit"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                            />
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex space-x-4">
-                            <button
-                                onClick={approveTokens}
-                                className={`
-                                    flex-1 py-2 rounded-lg transition duration-300
-                                    ${!amount0 || !amount1
-                                        ? 'bg-gray-400 cursor-not-allowed'
-                                        : 'bg-yellow-500 hover:bg-yellow-600 text-white'}
-                                `}
-                                disabled={!amount0 || !amount1}
-                            >
-                                Approve Tokens
-                            </button>
-                            <button
-                                onClick={addLiquidity}
-                                className={`
-                                    flex-1 py-2 rounded-lg transition duration-300
-                                    ${!amount0 || !amount1 || !approvalStatus.token0 || !approvalStatus.token1
-                                        ? 'bg-gray-400 cursor-not-allowed'
-                                        : 'bg-green-500 hover:bg-green-600 text-white'}
-                                `}
-                                disabled={!amount0 || !amount1 || !approvalStatus.token0 || !approvalStatus.token1}
-                            >
-                                Add Liquidity
-                            </button>
-                        </div>
-
-                        {/* ROI Display */}
-                        {roi !== null && (
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Return on Investment (ROI)
-                                </label>
-                                <input
-                                    type="text"
-                                    value={`${roi}%`}
-                                    readOnly
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
-                                />
+                        {/* Vault Information */}
+                        <div className="bg-gray-50 rounded-lg p-4 mb-4 space-y-3">
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center">
+                                    <Coins className="mr-2 text-blue-500" />
+                                    <span className="font-medium">Total Vault Liquidity</span>
+                                </div>
+                                <span className="text-gray-700">{vaultInfo.totalLiquidity} Shares</span>
                             </div>
-                        )}
-                    </div>
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center">
+                                    <PlusCircle className="mr-2 text-green-500" />
+                                    <span className="font-medium">Your Initial Liquidity</span>
+                                </div>
+                                <span className="text-gray-700">{vaultInfo.userInitialLiquidity}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <div className="flex items-center">
+                                    <ThermometerSnowflake className="mr-2 text-purple-500" />
+                                    <span className="font-medium">Your ROI</span>
+                                </div>
+                                <span className="text-gray-700">
+                                    {vaultInfo.roi !== null ? `${vaultInfo.roi}%` : 'N/A'}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Liquidity Management */}
+                        <div className="space-y-4">
+                            {/* Add Liquidity Section */}
+                            <div className="border rounded-lg p-4 bg-gray-50">
+                                <h3 className="text-lg font-semibold mb-3 text-gray-800">Add Liquidity</h3>
+                                <div className="space-y-3">
+                                    <input
+                                        type="number"
+                                        placeholder={`${token0Details.symbol} Amount`}
+                                        value={amount0}
+                                        onChange={(e) => setAmount0(e.target.value)}
+                                        className="w-full p-2 border rounded-lg"
+                                    />
+                                    <input
+                                        type="number"
+                                        placeholder={`${token1Details.symbol} Amount`}
+                                        value={amount1}
+                                        onChange={(e) => setAmount1(e.target.value)}
+                                        className="w-full p-2 border rounded-lg"
+                                    />
+                                    <div className="flex space-x-2">
+                                        <button
+                                            onClick={approveTokens}
+                                            className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg"
+                                        >
+                                            Approve Tokens
+                                        </button>
+                                        <button
+                                            onClick={addLiquidity}
+                                            className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg"
+                                            disabled={!approvalStatus.token0 || !approvalStatus.token1}
+                                        >
+                                            Add Liquidity
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Remove Liquidity Section */}
+                            <div className="border rounded-lg p-4 bg-gray-50">
+                                <h3 className="text-lg font-semibold mb-3 text-gray-800">Remove Liquidity</h3>
+                                <div className="space-y-3">
+                                    <div className="flex items-center">
+                                        <Wallet className="mr-2 text-gray-600" />
+                                        <span>Your Liquidity Shares: {liquidityShares}</span>
+                                    </div>
+                                    <input
+                                        type="number"
+                                        placeholder="Shares to Remove"
+                                        value={sharesToRemove}
+                                        onChange={(e) => setSharestoRemove(e.target.value)}
+                                        className="w-full p-2 border rounded-lg"
+                                    />
+                                    <button
+                                        onClick={removeLiquidity}
+                                        className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg"
+                                    >
+                                        Remove Liquidity
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </>
                 )}
             </div>
         </div>
     );
 };
 
-export default CheckPage;
+export default LiquidityVault;
