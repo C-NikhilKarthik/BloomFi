@@ -16,7 +16,7 @@ const App: React.FC = () => {
       <div className="bg-slate-900 text-white">
         <Routes>
           <Route
-            path="/"
+            path="/dashboard"
             element={
               <>
                 <Navbar
@@ -32,7 +32,7 @@ const App: React.FC = () => {
             }
           />
 
-          <Route path="/explore" element={<ExplorePools />} />
+          <Route path="/" element={<ExplorePools />} />
           <Route path="/create" element={<CreatePool />} />
           <Route path="/game" element={<Game />} />
         </Routes>
