@@ -8,7 +8,6 @@ async function generateContentWithGemini(prompt) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                // "Authorization": `Bearer ${GEMINI_API_KEY}`,
             },
             body: JSON.stringify({ prompt }),
         });

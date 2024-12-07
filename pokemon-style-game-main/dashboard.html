@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Garden Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #0f172a;
+            color: #ffffff;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 64px;
+            background-color: #1e293b;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+        }
+        .navbar button {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: #059669;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin-bottom: 1rem;
+        }
+        .navbar button:hover {
+            background-color: #047857;
+        }
+        .content {
+            margin-left: 64px;
+            padding: 2rem;
+        }
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .hero p {
+            font-size: 1.25rem;
+            color: #94a3b8;
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        .button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .button-primary {
+            background-color: #059669;
+            color: white;
+        }
+        .button-secondary {
+            background-color: #1e293b;
+            color: white;
+            border: 1px solid #059669;
+        }
+        .section {
+            padding: 4rem 0;
+        }
+        .section h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 2rem;
+        }
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        .card {
+            background-color: #1e293b;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: scale(1.05);
+        }
+        .card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        .card p {
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div>
+            <button id="homeButton">🏠</button>
+            <button id="crownButton">👑</button>
+            <button id="poolsButton">🏊</button>
+        </div>
+        <button id="connectWalletButton">👛</button>
+    </nav>
+    <main class="content">
+        <section id="hero" class="hero">
+            <h1>Crypto Garden</h1>
+            <p>Cultivate Your Crypto Investments: Discover High ROI Pools Across the Ethereum Ecosystem</p>
+            <div class="button-group">
+                <a href="/pokemon-style-game-main/index.html" class="button button-secondary">Explore Pools</a>
+                <a href="/pokemon-style-game-main/create.html" class="button button-primary">Create Pool</a>
+            </div>
+        </section>
+        <section id="king" class="section">
+            <h2>King of the Hill</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <h3>Top Pool #1</h3>
+                    <p>ROI: 15.75%</p>
+                    <p>Market Cap: $5.6M</p>
+                    <p>A brief description of the pool, including its benefits and features.</p>
+                </div>
+                <div class="card">
+                    <h3>Top Pool #2</h3>
+                    <p>ROI: 12.30%</p>
+                    <p>Market Cap: $3.2M</p>
+                    <p>A brief description of the pool, including its benefits and features.</p>
+                </div>
+                <div class="card">
+                    <h3>Top Pool #3</h3>
+                    <p>ROI: 10.80%</p>
+                    <p>Market Cap: $2.8M</p>
+                    <p>A brief description of the pool, including its benefits and features.</p>
+                </div>
+            </div>
+        </section>
+        <section id="pools" class="section">
+            <h2>Available Pools</h2>
+            <div id="poolsContainer" class="card-grid">
+                <!-- Pools will be dynamically inserted here -->
+            </div>
+        </section>
+    </main>
+    <script src="dashboard.js"></script>
+</body>
+</html>
