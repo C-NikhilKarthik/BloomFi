@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Pool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0f172a;
+            color: #ffffff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .card {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            width: 100%;
+            max-width: 42rem;
+            padding: 2rem;
+        }
+        .card-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .card-title {
+            font-size: 2.25rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .card-description {
+            color: #94a3b8;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 0.5rem;
+            background-color: #334155;
+            border: 1px solid #475569;
+            border-radius: 0.25rem;
+            color: #ffffff;
+        }
+        textarea {
+            resize: vertical;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        .social-links {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        .submit-button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #059669;
+            color: #ffffff;
+            border: none;
+            border-radius: 0.25rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .submit-button:hover {
+            background-color: #047857;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="card-header">
+            <h1 class="card-title">Create Pool</h1>
+            <p class="card-description">Launch your high ROI pool in the Ethereum ecosystem</p>
+        </div>
+        <form id="createPoolForm">
+            <div class="grid">
+                <div class="form-group">
+                    <label for="name">Pool Name</label>
+                    <input type="text" id="name" name="name" placeholder="Enter pool name" required>
+                </div>
+                <div class="form-group">
+                    <label for="ticker">Ticker Symbol</label>
+                    <input type="text" id="ticker" name="ticker" placeholder="Pool ticker" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="4" placeholder="Describe your pool's strategy and unique value proposition" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="imageUrl">Image or Video URL</label>
+                <input type="url" id="imageUrl" name="imageUrl" placeholder="Add a visual representation of your pool">
+            </div>
+            <div class="form-group">
+                <label for="network">Select Network</label>
+                <select id="network" name="network" required>
+                    <option value="" disabled selected>Choose a network</option>
+                    <option value="mainnet">Ethereum Mainnet</option>
+                    <option value="base">Base Network</option>
+                    <option value="arbitrum">Arbitrum Network</option>
+                    <option value="optimism">Optimism Network</option>
+                    <option value="polygon">Polygon Network</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <h3>Social Links</h3>
+                <div class="social-links">
+                    <div>
+                        <label for="website">Website</label>
+                        <input type="url" id="website" name="website" placeholder="https://yourpool.com">
+                    </div>
+                    <div>
+                        <label for="twitter">Twitter</label>
+                        <input type="text" id="twitter" name="twitter" placeholder="@yourpool">
+                    </div>
+                    <div>
+                        <label for="github">GitHub</label>
+                        <input type="text" id="github" name="github" placeholder="github.com/yourpool">
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="submit-button">Create Pool</button>
+        </form>
+    </div>
+    <script src="create.js"></script>
+</body>
+</html>
