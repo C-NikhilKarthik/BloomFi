@@ -1,3 +1,36 @@
+// import Token from './abis/Token.json';
+let token0Contract;
+let token1Contract;
+
+// Function to fetch the Token ABI from the JSON file
+async function loadTokenAbi() {
+  try {
+    const response = await fetch('abis/Token.json'); // Relative path to the JSON file
+    if (!response.ok) {
+      throw new Error(`Failed to load Token.json: ${response.statusText}`);
+    }
+    return await response.json(); // Return the parsed JSON content
+  } catch (error) {
+    console.error('Error loading Token.json:', error);
+    alert('Failed to load Token ABI');
+    throw error; // Re-throw to halt execution if needed
+  }
+}
+
+async function loadCSAMMAbi() {
+  try {
+    const response = await fetch('abis/CSAMM.json'); // Relative path to the JSON file
+    if (!response.ok) {
+      throw new Error(`Failed to load Token.json: ${response.statusText}`);
+    }
+    return await response.json(); // Return the parsed JSON content
+  } catch (error) {
+    console.error('Error loading Token.json:', error);
+    alert('Failed to load Token ABI');
+    throw error; // Re-throw to halt execution if needed
+  }
+}
+
 const canvas = document.querySelector('canvas');
 const c = canvas.getContext('2d');
 
@@ -10,6 +43,231 @@ let error = null;
 let treeVal = -1;
 let treeNumber = 0;
 
+// import Web3 from 'web3'
+// Contract addresses and ABI configurations
+const NETWORK_ID = '11155111' // Sepolia testnet
+const CSAMM_CONTRACT_ADDRESS = '0xb1ba9DB205BA7162E46d4330091E8c2F40A65750'
+const TOKEN0_CONTRACT_ADDRESS = '0x5509CDD163d1aFE5Ec9D76876E2e8D05C959A850'
+const TOKEN1_CONTRACT_ADDRESS = '0xcE9210f785bb8cF106C8fbda90037B68d96610c2'
+
+let web3
+let account
+// let token0Contract
+// let token1Contract
+let csammContract
+
+// Modal functionality
+const modal = document.getElementById('liquidityModal')
+
+function showModal() {
+  modal.classList.remove('hidden')
+  modal.classList.add('flex')
+}
+
+function closeModal() {
+  modal.classList.add('hidden')
+  modal.classList.remove('flex')
+}
+
+// Web3 functionality
+async function connectWallet() {
+  try {
+    if (!window.ethereum) {
+      alert('Please install MetaMask')
+      return
+    }
+
+    const accounts = await window.ethereum.request({
+      method: 'eth_requestAccounts'
+    })
+
+    web3 = new Web3(window.ethereum)
+    account = accounts[0]
+    const Token = await loadTokenAbi();
+    const CSAMMContract = await loadCSAMMAbi();
+
+    // Initialize contracts
+    token0Contract = new web3.eth.Contract(Token.abi, TOKEN0_CONTRACT_ADDRESS)
+    token1Contract = new web3.eth.Contract(Token.abi, TOKEN1_CONTRACT_ADDRESS)
+    csammContract = new web3.eth.Contract(
+      CSAMMContract.abi,
+      CSAMM_CONTRACT_ADDRESS
+    )
+
+    await Promise.all([
+      fetchTokenDetails(),
+      refreshBalances(),
+      fetchVaultInfo()
+    ])
+  } catch (error) {
+    console.error('Wallet connection failed:', error)
+    alert('Failed to connect wallet: ' + error.message)
+  }
+}
+async function explorePool() {
+  showModal()
+  await connectWallet()
+}
+
+function cancelAction() {
+  closeModal()
+}
+
+async function fetchTokenDetails() {
+  try {
+    // Fetch Token 0 details
+    const name0 = await token0Contract.methods.name().call()
+    const symbol0 = await token0Contract.methods.symbol().call()
+    document.getElementById('token0Name').textContent = name0
+    document.getElementById('token0Symbol').textContent = symbol0
+
+    // Fetch Token 1 details
+    const name1 = await token1Contract.methods.name().call()
+    const symbol1 = await token1Contract.methods.symbol().call()
+    document.getElementById('token1Name').textContent = name1
+    document.getElementById('token1Symbol').textContent = symbol1
+  } catch (error) {
+    console.error('Error fetching token details:', error)
+  }
+}
+
+async function refreshBalances() {
+  try {
+    const balance0 = await token0Contract.methods.balanceOf(account).call()
+    const balance1 = await token1Contract.methods.balanceOf(account).call()
+
+    document.getElementById(
+      'token0Balance'
+    ).textContent = `Balance: ${web3.utils.fromWei(balance0, 'ether')}`
+    document.getElementById(
+      'token1Balance'
+    ).textContent = `Balance: ${web3.utils.fromWei(balance1, 'ether')}`
+  } catch (error) {
+    console.error('Error refreshing balances:', error)
+  }
+}
+
+async function fetchVaultInfo() {
+  try {
+    const totalLiquidity = await csammContract.methods.totalSupply().call()
+    const userShares = await csammContract.methods.balanceOf(account).call()
+    const initialLiquidity = await csammContract.methods
+      .initialLiquidity(account)
+      .call()
+    const roi = await csammContract.methods.calculateROI(account).call()
+
+    document.getElementById(
+      'totalLiquidity'
+    ).textContent = `${web3.utils.fromWei(totalLiquidity, 'ether')} Shares`
+    document.getElementById(
+      'liquidityShares'
+    ).textContent = `Your Liquidity Shares: ${web3.utils.fromWei(
+      userShares,
+      'ether'
+    )}`
+    document.getElementById('initialLiquidity').textContent =
+      web3.utils.fromWei(initialLiquidity, 'ether')
+    document.getElementById('roi').textContent = `${roi}%`
+  } catch (error) {
+    console.error('Error fetching vault info:', error)
+  }
+}
+
+async function approveTokens() {
+  try {
+    const amount0 = document.getElementById('amount0Input').value
+    const amount1 = document.getElementById('amount1Input').value
+
+    if (!amount0 || !amount1) {
+      alert('Please enter amounts for both tokens')
+      return
+    }
+
+    const amount0Wei = web3.utils.toWei(amount0, 'ether')
+    const amount1Wei = web3.utils.toWei(amount1, 'ether')
+
+    await token0Contract.methods
+      .approve(CSAMM_CONTRACT_ADDRESS, amount0Wei)
+      .send({ from: account })
+    await token1Contract.methods
+      .approve(CSAMM_CONTRACT_ADDRESS, amount1Wei)
+      .send({ from: account })
+
+    alert('Tokens approved successfully!')
+  } catch (error) {
+    console.error('Approval failed:', error)
+    alert('Failed to approve tokens: ' + error.message)
+  }
+}
+
+async function addLiquidity() {
+  try {
+    const amount0 = document.getElementById('amount0Input').value
+    const amount1 = document.getElementById('amount1Input').value
+
+    if (!amount0 || !amount1) {
+      alert('Please enter amounts for both tokens')
+      return
+    }
+
+    const amount0Wei = web3.utils.toWei(amount0, 'ether')
+    const amount1Wei = web3.utils.toWei(amount1, 'ether')
+
+    await csammContract.methods
+      .addLiquidity(amount0Wei, amount1Wei)
+      .send({ from: account })
+
+    await Promise.all([refreshBalances(), fetchVaultInfo()])
+
+    alert('Liquidity added successfully!')
+    document.getElementById('amount0Input').value = ''
+    document.getElementById('amount1Input').value = ''
+  } catch (error) {
+    console.error('Add liquidity failed:', error)
+    alert('Failed to add liquidity: ' + error.message)
+  }
+}
+
+async function removeLiquidity() {
+  try {
+    const sharesToRemove = document.getElementById(
+      'sharesToRemoveInput'
+    ).value
+
+    if (!sharesToRemove || parseFloat(sharesToRemove) <= 0) {
+      alert('Please enter a valid number of shares to remove')
+      return
+    }
+
+    const sharesToRemoveWei = web3.utils.toWei(sharesToRemove, 'ether')
+
+    await csammContract.methods
+      .removeLiquidity(sharesToRemoveWei)
+      .send({ from: account })
+
+    await Promise.all([refreshBalances(), fetchVaultInfo()])
+
+    alert('Liquidity removed successfully!')
+    document.getElementById('sharesToRemoveInput').value = ''
+  } catch (error) {
+    console.error('Remove liquidity failed:', error)
+    alert('Failed to remove liquidity: ' + error.message)
+  }
+}
+
+// Event listeners for window.ethereum
+if (window.ethereum) {
+  window.ethereum.on('accountsChanged', (accounts) => {
+    if (accounts.length > 0) {
+      connectWallet()
+    }
+  })
+
+  window.ethereum.on('chainChanged', () => {
+    window.location.reload()
+  })
+}
+
 // function explorePool(index) {
 //   // Redirect to a different page, passing the pool ID or name as a query parameter
 //   const pool = pools[index];
@@ -18,10 +276,10 @@ let treeNumber = 0;
 //   }
 // }
 
-function cancelAction() {
-  // Logic for cancel button (e.g., close the dialogue box or reset UI)
-  document.querySelector('#characterDialogueBox').innerHTML = '';
-}
+// function cancelAction() {
+//   // Logic for cancel button (e.g., close the dialogue box or reset UI)
+//   document.querySelector('#characterDialogueBox').innerHTML = '';
+// }
 
 async function fetchPools() {
   loading = true;

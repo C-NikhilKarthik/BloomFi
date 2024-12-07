@@ -1,0 +1,357 @@
+[
+  {
+    "id": "0x070810362cb6fd4b44f87a225ab0c20aeb194a63",
+    "type": "STABLE",
+    "address": "0x070810362cb6fd4b44f87a225ab0c20aeb194a63",
+    "createTime": 1733514660,
+    "symbol": "USDT-stataDAI",
+    "chain": "SEPOLIA",
+    "name": "USDT stataDAI partially boosted",
+    "poolTokens": [
+      {
+        "address": "0xaa8e23fb1079ea71e0a56f48a2aa51851d8433d0",
+        "weight": null,
+        "symbol": "usdt-aave",
+        "name": "USDT (AAVE Faucet)",
+        "decimals": 6,
+        "scalingFactor": "1000000000000",
+        "balanceUSD": "281.843",
+        "underlyingToken": null
+      },
+      {
+        "address": "0xde46e43f46ff74a23a65ebb0580cbe3dfe684a17",
+        "weight": null,
+        "symbol": "stataEthDAI",
+        "name": "Static Aave Ethereum DAI",
+        "decimals": 18,
+        "scalingFactor": "1",
+        "balanceUSD": "281.94",
+        "underlyingToken": {
+          "address": "0xff34b3d4aee8ddcd6f9afffb6fe49bd371b8a357",
+          "underlyingTokenAddress": null,
+          "description": null,
+          "symbol": "dai-aave",
+          "name": "DAI (AAVE Faucet)",
+          "decimals": 18
+        }
+      }
+    ],
+    "protocolVersion": 3
+  },
+  {
+    "id": "0x3e099b16beeae7cfcf8a0921941394f1a9b00e0e",
+    "type": "WEIGHTED",
+    "address": "0x3e099b16beeae7cfcf8a0921941394f1a9b00e0e",
+    "createTime": 1733513436,
+    "symbol": "Bv3-50BAL-50DAI",
+    "chain": "SEPOLIA",
+    "name": "Balancer 50 BAL 50 DAI",
+    "poolTokens": [
+      {
+        "address": "0xb19382073c7a0addbb56ac6af1808fa49e377b75",
+        "weight": "0.5",
+        "symbol": "BAL",
+        "name": "Balancer Governance Token",
+        "decimals": 18,
+        "scalingFactor": "1",
+        "balanceUSD": "39.7",
+        "underlyingToken": null
+      },
+      {
+        "address": "0xff34b3d4aee8ddcd6f9afffb6fe49bd371b8a357",
+        "weight": "0.5",
+        "symbol": "dai-aave",
+        "name": "DAI (AAVE Faucet)",
+        "decimals": 18,
+        "scalingFactor": "1",
+        "balanceUSD": "39.43939999999999",
+        "underlyingToken": null
+      }
+    ],
+    "protocolVersion": 3
+  },
+  {
+    "id": "0x59fa488dda749cdd41772bb068bb23ee955a6d7a",
+    "type": "STABLE",
+    "address": "0x59fa488dda749cdd41772bb068bb23ee955a6d7a",
+    "createTime": 1733451276,
+    "symbol": "bb-a-USD",
+    "chain": "SEPOLIA",
+    "name": "Balancer USDC/USDT",
+    "poolTokens": [
+      {
+        "address": "0x8a88124522dbbf1e56352ba3de1d9f78c143751e",
+        "weight": null,
+        "symbol": "stataEthUSDC",
+        "name": "Static Aave Ethereum USDC",
+        "decimals": 6,
+        "scalingFactor": "1000000000000",
+        "balanceUSD": "48000",
+        "underlyingToken": {
+          "address": "0x94a9d9ac8a22534e3faca9f4e7f2e2cf85d5e4c8",
+          "underlyingTokenAddress": null,
+          "description": null,
+          "symbol": "usdc-aave",
+          "name": "USDC (AAVE Faucet)",
+          "decimals": 6
+        }
+      },
+      {
+        "address": "0x978206fae13faf5a8d293fb614326b237684b750",
+        "weight": null,
+        "symbol": "stataEthUSDT",
+        "name": "Static Aave Ethereum USDT",
+        "decimals": 6,
+        "scalingFactor": "1000000000000",
+        "balanceUSD": "53889.39313252828",
+        "underlyingToken": {
+          "address": "0xaa8e23fb1079ea71e0a56f48a2aa51851d8433d0",
+          "underlyingTokenAddress": null,
+          "description": null,
+          "symbol": "usdt-aave",
+          "name": "USDT (AAVE Faucet)",
+          "decimals": 6
+        }
+      }
+    ],
+    "protocolVersion": 3
+  },
+  {
+    "id": "0x5b17fb19b8c44f126e87882e7baa32153edcaf1d",
+    "type": "STABLE",
+    "address": "0x5b17fb19b8c44f126e87882e7baa32153edcaf1d",
+    "createTime": 1733451972,
+    "symbol": "Bv3-DAI-USDC",
+    "chain": "SEPOLIA",
+    "name": "Balancer DAI/USDC",
+    "poolTokens": [
+      {
+        "address": "0x94a9d9ac8a22534e3faca9f4e7f2e2cf85d5e4c8",
+        "weight": null,
+        "symbol": "usdc-aave",
+        "name": "USDC (AAVE Faucet)",
+        "decimals": 6,
+        "scalingFactor": "1000000000000",
+        "balanceUSD": "25000",
+        "underlyingToken": null
+      },
+      {
+        "address": "0xff34b3d4aee8ddcd6f9afffb6fe49bd371b8a357",
+        "weight": null,
+        "symbol": "dai-aave",
+        "name": "DAI (AAVE Faucet)",
+        "decimals": 18,
+        "scalingFactor": "1",
+        "balanceUSD": "25025",
+        "underlyingToken": null
+      }
+    ],
+    "protocolVersion": 3
+  },
+  {
+    "id": "0x693cc6a39bbf35464f53d6a5dbf7d6c2fa93741c",
+    "type": "WEIGHTED",
+    "address": "0x693cc6a39bbf35464f53d6a5dbf7d6c2fa93741c",
+    "createTime": 1733452512,
+    "symbol": "Bv3-50bbaUSD-50WETH",
+    "chain": "SEPOLIA",
+    "name": "Balancer 50 bbaUSD 50 WETH",
+    "poolTokens": [
+      {
+        "address": "0x59fa488dda749cdd41772bb068bb23ee955a6d7a",
+        "weight": "0.5",
+        "symbol": "bb-a-USD",
+        "name": "Balancer USDC/USDT",
+        "decimals": 18,
+        "scalingFactor": "1",
+        "balanceUSD": "209.3007618259581",
+        "underlyingToken": null
+      },
+      {
+        "address": "0x7b79995e5f793a07bc00c21412e50ecae098e7f9",
+        "weight": "0.5",
+        "symbol": "WETH",
+        "name": "Wrapped Ether",
+        "decimals": 18,
+        "scalingFactor": "1",
+        "balanceUSD": "4090.79",
+        "underlyingToken": null
+      }
+    ],
+    "protocolVersion": 3
+  },
+  {
+    "id": "0x86fde41ff01b35846eb2f27868fb2938addd44c4",
+    "type": "WEIGHTED",
+    "address": "0x86fde41ff01b35846eb2f27868fb2938addd44c4",
+    "createTime": 1733452584,
+    "symbol": "Bv3-50DAI-50USDC",
+    "chain": "SEPOLIA",
+    "name": "Balancer 50 DAI 50 USDC",
+    "poolTokens": [
+      {
+        "address": "0x94a9d9ac8a22534e3faca9f4e7f2e2cf85d5e4c8",
+        "weight": "0.5",
+        "symbol": "usdc-aave",
+        "name": "USDC (AAVE Faucet)",
+        "decimals": 6,
+        "scalingFactor": "1000000000000",
+        "balanceUSD": "5000",
+        "underlyingToken": null
+      },
+      {
+        "address": "0xff34b3d4aee8ddcd6f9afffb6fe49bd371b8a357",
+        "weight": "0.5",
+        "symbol": "dai-aave",
+        "name": "DAI (AAVE Faucet)",
+        "decimals": 18,
+        "scalingFactor": "1",
+        "balanceUSD": "5004.999999999999",
+        "underlyingToken": null
+      }
+    ],
+    "protocolVersion": 3
+  },
+  {
+    "id": "0xb1769fee9845e2762539c9d4b6a3793388152930",
+    "type": "WEIGHTED",
+    "address": "0xb1769fee9845e2762539c9d4b6a3793388152930",
+    "createTime": 1733452692,
+    "symbol": "Bv3-50WETH-50stataUSDC",
+    "chain": "SEPOLIA",
+    "name": "Balancer 50 WETH 50 stataUSDC",
+    "poolTokens": [
+      {
+        "address": "0x7b79995e5f793a07bc00c21412e50ecae098e7f9",
+        "weight": "0.5",
+        "symbol": "WETH",
+        "name": "Wrapped Ether",
+        "decimals": 18,
+        "scalingFactor": "1",
+        "balanceUSD": "40907.9",
+        "underlyingToken": null
+      },
+      {
+        "address": "0x8a88124522dbbf1e56352ba3de1d9f78c143751e",
+        "weight": "0.5",
+        "symbol": "stataEthUSDC",
+        "name": "Static Aave Ethereum USDC",
+        "decimals": 6,
+        "scalingFactor": "1000000000000",
+        "balanceUSD": "31200",
+        "underlyingToken": {
+          "address": "0x94a9d9ac8a22534e3faca9f4e7f2e2cf85d5e4c8",
+          "underlyingTokenAddress": null,
+          "description": null,
+          "symbol": "usdc-aave",
+          "name": "USDC (AAVE Faucet)",
+          "decimals": 6
+        }
+      }
+    ],
+    "protocolVersion": 3
+  },
+  {
+    "id": "0xb790fa0ba5d563b814b0ca1716c414f6b99937b2",
+    "type": "WEIGHTED",
+    "address": "0xb790fa0ba5d563b814b0ca1716c414f6b99937b2",
+    "createTime": 1733450976,
+    "symbol": "Bv3-50BAL-50WETH",
+    "chain": "SEPOLIA",
+    "name": "Balancer 50 BAL 50 WETH",
+    "poolTokens": [
+      {
+        "address": "0x7b79995e5f793a07bc00c21412e50ecae098e7f9",
+        "weight": "0.5",
+        "symbol": "WETH",
+        "name": "Wrapped Ether",
+        "decimals": 18,
+        "scalingFactor": "1",
+        "balanceUSD": "2045.395",
+        "underlyingToken": null
+      },
+      {
+        "address": "0xb19382073c7a0addbb56ac6af1808fa49e377b75",
+        "weight": "0.5",
+        "symbol": "BAL",
+        "name": "Balancer Governance Token",
+        "decimals": 18,
+        "scalingFactor": "1",
+        "balanceUSD": "1985",
+        "underlyingToken": null
+      }
+    ],
+    "protocolVersion": 3
+  },
+  {
+    "id": "0xbfdbdb4d5b8e00bade87cf12ed58e6152f25ac3e",
+    "type": "WEIGHTED",
+    "address": "0xbfdbdb4d5b8e00bade87cf12ed58e6152f25ac3e",
+    "createTime": 1733452644,
+    "symbol": "Bv3-50WETH-50USD",
+    "chain": "SEPOLIA",
+    "name": "Balancer 50 WETH 50 USD",
+    "poolTokens": [
+      {
+        "address": "0x7b79995e5f793a07bc00c21412e50ecae098e7f9",
+        "weight": "0.5",
+        "symbol": "WETH",
+        "name": "Wrapped Ether",
+        "decimals": 18,
+        "scalingFactor": "1",
+        "balanceUSD": "2045.395",
+        "underlyingToken": null
+      },
+      {
+        "address": "0x86fde41ff01b35846eb2f27868fb2938addd44c4",
+        "weight": "0.5",
+        "symbol": "Bv3-50DAI-50USDC",
+        "name": "Balancer 50 DAI 50 USDC",
+        "decimals": 18,
+        "scalingFactor": "1",
+        "balanceUSD": "3990.849627470382",
+        "underlyingToken": null
+      }
+    ],
+    "protocolVersion": 3
+  },
+  {
+    "id": "0xc832a37c8252117604f1329b4a7fed7076880b27",
+    "type": "STABLE",
+    "address": "0xc832a37c8252117604f1329b4a7fed7076880b27",
+    "createTime": 1733451732,
+    "symbol": "bbaUSD/DAI",
+    "chain": "SEPOLIA",
+    "name": "Balancer DAI/USDC/USDT",
+    "poolTokens": [
+      {
+        "address": "0x59fa488dda749cdd41772bb068bb23ee955a6d7a",
+        "weight": null,
+        "symbol": "bb-a-USD",
+        "name": "Balancer USDC/USDT",
+        "decimals": 18,
+        "scalingFactor": "1",
+        "balanceUSD": "34883.46030432636",
+        "underlyingToken": null
+      },
+      {
+        "address": "0xde46e43f46ff74a23a65ebb0580cbe3dfe684a17",
+        "weight": null,
+        "symbol": "stataEthDAI",
+        "name": "Static Aave Ethereum DAI",
+        "decimals": 18,
+        "scalingFactor": "1",
+        "balanceUSD": "63500",
+        "underlyingToken": {
+          "address": "0xff34b3d4aee8ddcd6f9afffb6fe49bd371b8a357",
+          "underlyingTokenAddress": null,
+          "description": null,
+          "symbol": "dai-aave",
+          "name": "DAI (AAVE Faucet)",
+          "decimals": 18
+        }
+      }
+    ],
+    "protocolVersion": 3
+  }
+]
