@@ -211,10 +211,5 @@
       "stateMutability": "view",
       "type": "function"
     }
-  ],
-  "networks": {
-    "11155111": {
-      "address": "0xAD6e634B8A554F23B7bB30DEf9a255d841f4928C"
-    }
-  }
+  ]
 }
