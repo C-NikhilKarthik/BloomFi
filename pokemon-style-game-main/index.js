@@ -43,6 +43,12 @@ let error = null;
 let treeVal = -1;
 let treeNumber = 0;
 
+const vaults = [
+  '0xb1ba9DB205BA7162E46d4330091E8c2F40A65750',
+  '0x9C73505a4CD7FADB38894BB2de2B5B9D3434531D',
+  '0x18b7570a2e89A50a266A0fEB36B0A4bC94BB4b85'
+]
+
 // import Web3 from 'web3'
 // Contract addresses and ABI configurations
 const NETWORK_ID = '11155111' // Sepolia testnet
@@ -281,45 +287,59 @@ if (window.ethereum) {
 //   document.querySelector('#characterDialogueBox').innerHTML = '';
 // }
 
-async function fetchPools() {
-  loading = true;
-  error = null;
+// async function fetchPools() {
+//   loading = true;
+//   error = null;
 
-  try {
-    const response = await fetch('http://localhost:3000/api/user/fetch/pools');
-    console.log(response);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch pools: ${response.statusText}`);
-    }
-    const data = await response.json();
+//   try {
+//     const response = await fetch('http://localhost:3000/api/user/fetch/pools');
+//     console.log(response);
+//     if (!response.ok) {
+//       throw new Error(`Failed to fetch pools: ${response.statusText}`);
+//     }
+//     const data = await response.json();
 
-    console.log(data);
+//     console.log(data);
 
-    pools = data.map((pool) => ({
-      id: pool.id,
-      name: pool.name,
-      symbol: pool.symbol,
-      chain: pool.chain,
-      poolTokens: pool.poolTokens.map((token) => ({
-        symbol: token.symbol,
-        name: token.name,
-        balanceUSD: token.balanceUSD,
-      })),
-    }));
+//     pools = data.map((pool) => ({
+//       id: pool.id,
+//       name: pool.name,
+//       symbol: pool.symbol,
+//       chain: pool.chain,
+//       poolTokens: pool.poolTokens.map((token) => ({
+//         symbol: token.symbol,
+//         name: token.name,
+//         balanceUSD: token.balanceUSD,
+//       })),
+//     }));
 
-    console.log("Pools fetched successfully:", pools);
-    treeNumber = pools.length;
-    console.log("Tree number:", treeNumber);
+//     console.log("Pools fetched successfully:", pools);
+//     treeNumber = pools.length;
+//     console.log("Tree number:", treeNumber);
 
-    // Call the function to set up and start the game
-    setupAndStartGame();
+//     // Call the function to set up and start the game
+//     setupAndStartGame();
 
-  } catch (err) {
-    console.error("Error fetching pools:", err);
-    error = err.message || "An error occurred while fetching pools.";
-  } finally {
-    loading = false;
-  }
+//   } catch (err) {
+//     console.error("Error fetching pools:", err);
+//     error = err.message || "An error occurred while fetching pools.";
+//   } finally {
+//     loading = false;
+//   }
+// }
+
+
+
+function fetchPools() {
+  pools = [
+    '0xb1ba9DB205BA7162E46d4330091E8c2F40A65750',
+    '0x9C73505a4CD7FADB38894BB2de2B5B9D3434531D',
+    '0x18b7570a2e89A50a266A0fEB36B0A4bC94BB4b85'
+  ]
+
+  treeNumber = pools.length
+
+  setupAndStartGame()
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -759,21 +779,33 @@ function setupAndStartGame() {
         } else {
           console.log(treeVal)
 
+          //   document.querySelector('#characterDialogueBox').innerHTML = `
+          //   <div>
+          //   <h3>${pools[treeVal].name} (${pools[treeVal].symbol})</h3>
+          //   <p>Chain: ${pools[treeVal].chain}</p>
+          //   <ul>
+          //     ${pools[treeVal].poolTokens
+          //       .map(
+          //         (token) => `
+          //       <li>
+          //         ${token.name} (${token.symbol}): $${token.balanceUSD}
+          //       </li>
+          //     `
+          //       )
+          //       .join('')}
+          //   </ul>
+
+          //   <div class="w-full flex justify-between ">
+          // <button class="px-4 py-1 border"  id="explore" onclick="explorePool()">Explore</button>
+          // <button class="px-4 py-1 border" onclick="cancelAction()">Cancel</button>
+          //   </div>
+
+          // </div>`
+
           document.querySelector('#characterDialogueBox').innerHTML = `
           <div>
-          <h3>${pools[treeVal].name} (${pools[treeVal].symbol})</h3>
-          <p>Chain: ${pools[treeVal].chain}</p>
-          <ul>
-            ${pools[treeVal].poolTokens
-              .map(
-                (token) => `
-              <li>
-                ${token.name} (${token.symbol}): $${token.balanceUSD}
-              </li>
-            `
-              )
-              .join('')}
-          </ul>
+          <h3>${pools[treeVal]}</h3>
+
 
           <div class="w-full flex justify-between ">
         <button class="px-4 py-1 border"  id="explore" onclick="explorePool()">Explore</button>
@@ -820,3 +852,5 @@ function setupAndStartGame() {
 
 // Log that the script has loaded
 console.log("Script loaded");
+// fetchPools()
+// setupAndStartGame()
