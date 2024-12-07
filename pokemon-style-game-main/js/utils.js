@@ -7,18 +7,11 @@ function rectangularCollision({ rectangle1, rectangle2 }) {
   )
 }
 
-// function checkForHouseCollision({
-//   characters,
-//   player,
-//   characterOffset = { x: 0, y: 0 }
-// })
-
 function checkForHouseCollision({
   housesMap,
   player,
   characterOffset = { x: 0, y: 0 }
 }) {
-  // console.log(housesMap)
   player.interactionAsset = null
   // monitor for character collision
   for (let i = 0; i < housesMap.length; i++) {
@@ -41,16 +34,48 @@ function checkForHouseCollision({
   }
 }
 
+// function checkForTreeCollision({
+//   treeZones,
+//   player,
+//   characterOffset = { x: 0, y: 0 },
+// }) {
+//   player.interactionAsset = null
+//   // monitor for character collision
+//   for (let i = 0; i < treeZones.length; i++) {
+//     const tree = treeZones[i]
+//     if (
+//       rectangularCollision({
+//         rectangle1: player,
+//         rectangle2: {
+//           ...tree,
+//           position: {
+//             x: tree.position.x + characterOffset.x,
+//             y: tree.position.y + characterOffset.y
+//           }
+//         }
+//       })
+//     ) {
+//       player.interactionAsset = tree
+//       // console.log(tree)
+//       return i
+
+//       // console.log(treeVal)
+//     } else {
+//       return -1
+//     }
+//   }
+// }
+
 function checkForTreeCollision({
   treeZones,
   player,
   characterOffset = { x: 0, y: 0 }
 }) {
-  // console.log(housesMap)
-  player.interactionAsset = null
-  // monitor for character collision
+  player.interactionAsset = null;
+  let newTreeVal = -1;
+
   for (let i = 0; i < treeZones.length; i++) {
-    const tree = treeZones[i]
+    const tree = treeZones[i];
     if (
       rectangularCollision({
         rectangle1: player,
@@ -63,11 +88,15 @@ function checkForTreeCollision({
         }
       })
     ) {
-      player.interactionAsset = tree
-      break
+      player.interactionAsset = tree;
+      newTreeVal = i;
+      break;
     }
   }
+
+  return newTreeVal;
 }
+
 
 
 
@@ -76,7 +105,6 @@ function checkForCharacterCollision({
   player,
   characterOffset = { x: 0, y: 0 }
 }) {
-  // console.log(characters)
   player.interactionAsset = null
   // monitor for character collision
   for (let i = 0; i < characters.length; i++) {

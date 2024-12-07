@@ -1,7 +1,7 @@
 const router = require("express").Router();
 
 const { getAggregatorPools } = require("../services/fetchPoolData");
-const { addLiquidityRoute } = require("../services/AddLiquidityToPool");
+// const { addLiquidityRoute } = require("../services/AddLiquidityToPool");
 
 router.get("/fetch/pools", async (req, res) => {
   try {
@@ -12,7 +12,7 @@ router.get("/fetch/pools", async (req, res) => {
   }
 });
 
-router.post("/add/liquidity", addLiquidityRoute);
+// router.post("/add/liquidity", addLiquidityRoute);
 
 module.exports = {
   use: "/user",
