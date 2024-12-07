@@ -56,24 +56,31 @@
     id="houseDialogueBox"
     class="bg-white/70 backdrop-blur-md h-[500px] w-[500px] absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 border-4 border-black hidden p-3"
   ></div>
+  <div class="absolute flex gap-2 top-2 right-2 z-[5]">
+    <a href="dashboard.html">
+      <button
+        class="p-4 py-auto h-full bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+      >
+        Dashboard
+      </button>
+    </a>
 
-  <a href="dashboard.html">
     <button
       id="connectButton"
-      class="p-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 absolute top-2 right-2 z-[5]"
+      class="p-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
       onclick="handleWalletConnection()"
     >
       Connect
     </button>
-  </a>
 
-  <!-- Display Wallet Address -->
-  <div
-    id="walletInfo"
-    class="p-4 py-2 bg-emerald-600 text-white absolute right-2 top-2 z-[5] rounded-lg hover:bg-emerald-700"
-  >
-    <p class="text-lg font-medium">Wallet Address:</p>
-    <p id="walletAddress" class="text-gray-700 font-mono mt-2"></p>
+    <!-- Display Wallet Address -->
+    <div
+      id="walletInfo"
+      class="p-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
+    >
+      <p class="text-lg font-medium">Wallet Address:</p>
+      <p id="walletAddress" class="text-gray-700 font-mono mt-1"></p>
+    </div>
   </div>
 
   <div

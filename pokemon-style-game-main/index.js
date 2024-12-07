@@ -150,7 +150,7 @@ async function checkWalletConnection() {
       web3 = new Web3(window.ethereum);
 
       // Update UI to show connected state
-      document.getElementById('connectButton').innerText = 'Disconnect';
+      document.getElementById('connectButton').classList.add('hidden')
       const walletInfo = document.getElementById('walletInfo');
       walletInfo.classList.remove('hidden');
       document.getElementById('walletAddress').textContent = `${account.slice(0, 6)}...${account.slice(-4)}`;
