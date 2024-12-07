@@ -8,12 +8,16 @@ class Sprite {
     animate = false,
     rotation = 0,
     scale = 1
+    // opacity=1
   }) {
+
     this.position = position
     this.image = new Image()
     this.frames = { ...frames, val: 0, elapsed: 0 }
     this.image.onload = () => {
+
       this.width = (this.image.width / this.frames.max) * scale
+      console.log('w', this.width)
       this.height = this.image.height * scale
     }
     this.image.src = image.src
@@ -25,6 +29,16 @@ class Sprite {
     this.rotation = rotation
     this.scale = scale
   }
+
+  faint() {
+    const blinkTimeline = gsap.timeline();
+
+    // Create a blink effect by toggling opacity
+    blinkTimeline.to(this, { opacity: 0, duration: 0.1, repeat: 4, yoyo: true }) // Blink for ~2 seconds
+      // .to(this.position, { y: this.position.y + 20, duration: 0.5 }) // Move down after blinking
+      .to(this, { opacity: 0, duration: 0.5 }); // Finally fade out completely
+  }
+
 
   draw() {
     c.save()
@@ -70,6 +84,8 @@ class Sprite {
     )
 
     c.restore()
+
+
 
     if (!this.animate) return
 
@@ -228,12 +244,35 @@ class Monster extends Sprite {
 }
 
 class Boundary {
-  static width = 48
-  static height = 48
+  static width = 36
+  static height = 36
   constructor({ position }) {
     this.position = position
-    this.width = 48
-    this.height = 48
+    this.width = 36
+    this.height = 36
+    this.type = 'Boundary'
+  }
+
+  draw() {
+    c.fillStyle = 'rgba(255, 0, 0, 0)'
+    c.fillRect(this.position.x, this.position.y, this.width, this.height)
+  }
+}
+
+class House {
+  static width = 36
+  static height = 36
+  constructor({ position,
+    // animate = false,
+    dialogue = ['']
+  }) {
+    this.position = position
+    this.width = 36
+    this.height = 36
+    // this.animate = animate
+    this.dialogue = dialogue
+    this.dialogueIndex = 0
+    this.type = 'House'
   }
 
   draw() {
