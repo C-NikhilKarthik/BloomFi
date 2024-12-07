@@ -64,13 +64,13 @@ houseMap.forEach((row, i) => {
 });
 
 const tree1Image = new Image();
-tree1Image.src = "./img/tree1.png";
+tree1Image.src = "/tree1.png";
 
 const tree2Image = new Image();
-tree2Image.src = "./img/tree2.png";
+tree2Image.src = "/tree2.png";
 
 const tree3Image = new Image();
-tree3Image.src = "./img/tree3.png";
+tree3Image.src = "/tree3.png";
 
 const treeZones = [];
 treeMap.forEach((row, i) => {
@@ -193,111 +193,91 @@ const ExplorePools: React.FC = () => {
 
     let lastKey = "";
 
-    window.addEventListener("keydown", (e) => {
+    window.addEventListener('keydown', (e) => {
       if (player.isInteracting) {
         switch (e.key) {
-          case " ":
-            if (player.interactionAsset.type === "House") {
+          case ' ':
+            if (player.interactionAsset.type === 'House') {
               player.isInteracting = false;
               player.interactionAsset.dialogueIndex = 0;
-              document.querySelector("#houseDialogueBox").style.display =
-                "none";
-
-              break;
+              document.querySelector('#houseDialogueBox').style.display = 'none';
             } else {
-              // player.interactionAsset.dialogueIndex++
+              // console.log(treeVal)
+    //           document.querySelector('#characterDialogueBox').innerHTML = `
+    //             <div>
+    //             <h3>${pools[treeVal].name} (${pools[treeVal].symbol})</h3>
+    //             <p>Chain: ${pools[treeVal].chain}</p>
+    //             <ul>
+    //               ${pools[treeVal].poolTokens
+    //               .map(
+    //                 (token) => `
+    //                 <li>
+    //                   ${token.name} (${token.symbol}): $${token.balanceUSD}
+    //                 </li>
+    //               `
+    //               )
+    //               .join('')}
+    //             </ul>
+    //           </div>
+    // `;
 
-              // const { dialogueIndex, dialogue } = player.interactionAsset
-              // if (dialogueIndex <= dialogue.length - 1) {
-              //   document.querySelector('#characterDialogueBox').innerHTML =
-              //     player.interactionAsset.dialogue[dialogueIndex]
-              //   return
-              // }
-
-              // finish conversation
-              // player.isInteracting = false
-              // player.interactionAsset.dialogueIndex = 0
-              // document.querySelector('#characterDialogueBox').style.display = 'none'
-
-              // break
-              document.querySelector("#characterDialogueBox").innerHTML = `
-      <button id="deleteTreeButton">Delete Tree</button>
-    `;
-
-              // Add the event listener for the delete button
-              document
-                .querySelector("#deleteTreeButton")
-                .addEventListener("click", () => {
-                  if (player.interactionAsset) {
-                    // Find and remove the tree from treeZones
-                    console.log(player.interactionAsset);
-                    const treeIndex = treeZones.indexOf(
-                      player.interactionAsset
-                    );
-                    console.log(treeIndex);
-                    // console.log(treeZones.indexOf(treeIndex))
-                    if (treeIndex > -1) {
-                      // treeZones.splice(treeIndex, 1); // Remove the tree
-                      treeZones[treeIndex].faint();
-                    }
-
-                    console.log(treeZones);
-
-                    // Hide the dialogue box
-                    document.querySelector(
-                      "#characterDialogueBox"
-                    ).style.display = "none";
-
-                    // Reset player interaction
-                    player.isInteracting = false;
-                    // player.interactionAsset = null;
-
-                    console.log("Tree deleted!");
+    document.querySelector('#characterDialogueBox').innerHTML = `
+    <div>
+              Tree
+  </div>
+`;
+  
+              document.querySelector('#deleteTreeButton').addEventListener('click', () => {
+                if (player.interactionAsset) {
+                  const treeIndex = treeZones.indexOf(player.interactionAsset);
+                  if (treeIndex > -1) {
+                    treeZones[treeIndex].faint();
                   }
-                });
-              break;
+                  document.querySelector('#characterDialogueBox').style.display = 'none';
+                  player.isInteracting = false;
+                  console.log('Tree deleted!');
+                }
+              });
+  
+              // document.querySelector('#cancel').addEventListener('click', () => {
+              //   if (player.interactionAsset) {
+              //     // const treeIndex = treeZones.indexOf(player.interactionAsset);
+              //     // if (treeIndex > -1) {
+              //     //   treeZones[treeIndex].faint();
+              //     // }
+              //     document.querySelector('#characterDialogueBox').style.display = 'none';
+              //     player.isInteracting = false;
+              //     console.log('Tree deleted!');
+              //   }
+              // });
             }
+            break;
         }
         return;
       }
-
+  
       switch (e.key) {
-        case " ":
+        case ' ':
           if (!player.interactionAsset) return;
-          if (player.interactionAsset.type === "House") {
+          if (player.interactionAsset.type === 'House') {
             const firstMessage = player.interactionAsset.dialogue[0];
-            document.querySelector("#houseDialogueBox").innerHTML =
-              firstMessage;
-            document.querySelector("#houseDialogueBox").style.display = "flex";
+            document.querySelector('#houseDialogueBox').innerHTML = firstMessage;
+            document.querySelector('#houseDialogueBox').style.display = 'flex';
             player.isInteracting = true;
-            break;
           } else {
-            // const firstMessage = player.interactionAsset.dialogue[0]
-            document.querySelector("#characterDialogueBox").innerHTML = "Tree";
-            document.querySelector("#characterDialogueBox").style.display =
-              "flex";
+            console.log(treeVal)
+  
+            document.querySelector('#characterDialogueBox').innerHTML = 'tree'
+            document.querySelector('#characterDialogueBox').style.display = 'flex';
             player.isInteracting = true;
-            break;
           }
-        // beginning the conversation
-
-        case "w":
-          keys.w.pressed = true;
-          lastKey = "w";
           break;
-        case "a":
-          keys.a.pressed = true;
-          lastKey = "a";
-          break;
-
-        case "s":
-          keys.s.pressed = true;
-          lastKey = "s";
-          break;
-
-        case "d":
-          keys.d.pressed = true;
-          lastKey = "d";
+        case 'w':
+        case 'a':
+        case 's':
+        case 'd':
+          keys[e.key].pressed = true;
+          lastKey = e.key;
           break;
       }
     });
@@ -319,20 +299,17 @@ const ExplorePools: React.FC = () => {
       }
     });
 
-    const testboundary = new Boundary({
-      position: {
-        x: 600,
-        y: 600,
-      },
-    });
-
-    const movables = [background, ...boundaries];
+    const movables = [
+      background,
+      ...boundaries,
+      ...housesMap,
+      ...treeZones];
     const renderables = [
       background,
       ...boundaries,
-      // ...housesMap,
+      ...housesMap,
       player,
-      // ...treeZones,
+      ...treeZones,
     ];
     function animate() {
       window.requestAnimationFrame(animate);
@@ -341,15 +318,15 @@ const ExplorePools: React.FC = () => {
       // c.clearRect(0, 0, canvas.width, canvas.height);
 
       // // Draw background
-      background.draw(c);
-      boundaries.forEach((boundary) => {
-        boundary.draw(c);
-      });
-      // testboundary.draw(c);
-      player.draw(c);
-      // renderables.forEach((renderable) => {
-      //   renderable.draw(c);
+      // background.draw(c);
+      // boundaries.forEach((boundary) => {
+      //   boundary.draw(c);
       // });
+      // // testboundary.draw(c);
+      // player.draw(c);
+      renderables.forEach((renderable) => {
+        renderable.draw(c);
+      });
 
       // Draw player sprite
       let moving = true;
@@ -394,15 +371,10 @@ const ExplorePools: React.FC = () => {
           }
         }
 
-        if (moving) {
-          // movables.forEach((movable) => {
-          //   movable.position.y += 3;
-          // });
-          background.position.y += 3;
-          boundaries.forEach((boundary) => {
-            boundary.position.y += 3;
+        if (moving)
+          movables.forEach((movable) => {
+            movable.position.y += 3;
           });
-        }
 
         // console.log(boundaries);
       } else if (keys.a.pressed && lastKey === "a") {
@@ -446,15 +418,10 @@ const ExplorePools: React.FC = () => {
         //   movables.forEach((movable) => {
         //     movable.position.x += 3;
         //   });
-        if (moving) {
-          // movables.forEach((movable) => {
-          //   movable.position.y += 3;
-          // });
-          background.position.x += 3;
-          boundaries.forEach((boundary) => {
-            boundary.position.x += 3;
+        if (moving)
+          movables.forEach((movable) => {
+            movable.position.x += 3;
           });
-        }
 
         // console.log(bundaries);
       } else if (keys.s.pressed && lastKey === "s") {
@@ -499,15 +466,10 @@ const ExplorePools: React.FC = () => {
         //     movable.position.y -= 3;
         //   });
 
-        if (moving) {
-          // movables.forEach((movable) => {
-          //   movable.position.y += 3;
-          // });
-          background.position.y -= 3;
-          boundaries.forEach((boundary) => {
-            boundary.position.y -= 3;
+        if (moving)
+          movables.forEach((movable) => {
+            movable.position.y -= 3;
           });
-        }
       } else if (keys.d.pressed && lastKey === "d") {
         player.animate = true;
         player.image = player.sprites.right;
@@ -549,15 +511,10 @@ const ExplorePools: React.FC = () => {
         //   movables.forEach((movable) => {
         //     movable.position.x -= 3;
         //   });
-        if (moving) {
-          // movables.forEach((movable) => {
-          //   movable.position.y += 3;
-          // });
-          background.position.x -= 3;
-          boundaries.forEach((boundary) => {
-            boundary.position.x -= 3;
+        if (moving)
+          movables.forEach((movable) => {
+            movable.position.x -= 3;
           });
-        }
       }
     }
 
@@ -578,7 +535,18 @@ const ExplorePools: React.FC = () => {
         </Link>
       </div>
       {/* Page content */}
-      <canvas ref={canvasRef} />;
+      <canvas ref={canvasRef} />
+
+      <div
+  id="characterDialogueBox"
+  className="bg-white fixed bottom-0 left-0 right-0 border-t-4 border-black hidden p-3"
+></div>
+
+<div
+  id="houseDialogueBox"
+  className="bg-white/70 backdrop-blur-sm h-[500px] w-[500px] fixed left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 border-4 border-black hidden p-3"
+></div>
+
     </div>
   );
 };

@@ -10,6 +10,19 @@ let error = null;
 let treeVal = -1;
 let treeNumber = 0;
 
+// function explorePool(index) {
+//   // Redirect to a different page, passing the pool ID or name as a query parameter
+//   const pool = pools[index];
+//   if (pool) {
+//     window.location.href = `explore.html?poolId=${pool.id}&name=${encodeURIComponent(pool.name)}`;
+//   }
+// }
+
+function cancelAction() {
+  // Logic for cancel button (e.g., close the dialogue box or reset UI)
+  document.querySelector('#characterDialogueBox').innerHTML = '';
+}
+
 async function fetchPools() {
   loading = true;
   error = null;
@@ -55,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('DOM fully loaded and parsed');
   fetchPools();
 });
+
 
 function setupAndStartGame() {
   // All the code that was previously after the DOMContentLoaded event listener goes here
@@ -486,7 +500,29 @@ function setupAndStartGame() {
           player.isInteracting = true;
         } else {
           console.log(treeVal)
-          document.querySelector('#characterDialogueBox').innerHTML = 'Tree';
+
+          document.querySelector('#characterDialogueBox').innerHTML = `
+          <div>
+          <h3>${pools[treeVal].name} (${pools[treeVal].symbol})</h3>
+          <p>Chain: ${pools[treeVal].chain}</p>
+          <ul>
+            ${pools[treeVal].poolTokens
+              .map(
+                (token) => `
+              <li>
+                ${token.name} (${token.symbol}): $${token.balanceUSD}
+              </li>
+            `
+              )
+              .join('')}
+          </ul>
+
+          <div class="w-full flex justify-between ">
+        <button class="px-4 py-1 border"  id="explore" onclick="explorePool()">Explore</button>
+        <button class="px-4 py-1 border" onclick="cancelAction()">Cancel</button>
+          </div>
+
+        </div>`
           document.querySelector('#characterDialogueBox').style.display = 'flex';
           player.isInteracting = true;
         }

@@ -52,7 +52,6 @@
     id="characterDialogueBox"
     style="
       background-color: white;
-      height: 140px;
       position: absolute;
       bottom: 0;
       left: 0;
@@ -199,6 +198,368 @@
     </div>
   </div>
 </div>
+
+<div
+  id="liquidityModal"
+  class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center"
+>
+  <div class="bg-white rounded-lg p-6 w-full max-w-md">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-2xl font-bold text-gray-800">Liquidity Vault</h2>
+      <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Token Details -->
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div class="border rounded-lg p-3 text-center">
+        <div
+          id="token0Image"
+          class="w-16 h-16 mx-auto mb-2 rounded-full bg-gray-200"
+        ></div>
+        <div id="token0Name" class="font-semibold">Token 0</div>
+        <div id="token0Symbol" class="text-sm text-gray-600">SYM0</div>
+        <div id="token0Balance" class="text-xs text-gray-500 mt-1">
+          Balance: 0
+        </div>
+      </div>
+      <div class="border rounded-lg p-3 text-center">
+        <div
+          id="token1Image"
+          class="w-16 h-16 mx-auto mb-2 rounded-full bg-gray-200"
+        ></div>
+        <div id="token1Name" class="font-semibold">Token 1</div>
+        <div id="token1Symbol" class="text-sm text-gray-600">SYM1</div>
+        <div id="token1Balance" class="text-xs text-gray-500 mt-1">
+          Balance: 0
+        </div>
+      </div>
+    </div>
+
+    <!-- Vault Information -->
+    <div class="bg-gray-50 rounded-lg p-4 mb-4 space-y-3">
+      <div class="flex justify-between items-center">
+        <div class="flex items-center">
+          <span class="font-medium">Total Vault Liquidity</span>
+        </div>
+        <span id="totalLiquidity" class="text-gray-700">0 Shares</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <div class="flex items-center">
+          <span class="font-medium">Your Initial Liquidity</span>
+        </div>
+        <span id="initialLiquidity" class="text-gray-700">0</span>
+      </div>
+      <div class="flex justify-between items-center">
+        <div class="flex items-center">
+          <span class="font-medium">Your ROI</span>
+        </div>
+        <span id="roi" class="text-gray-700">N/A</span>
+      </div>
+    </div>
+
+    <!-- Liquidity Management -->
+    <div class="space-y-4">
+      <!-- Add Liquidity Section -->
+      <div class="border rounded-lg p-4 bg-gray-50">
+        <h3 class="text-lg font-semibold mb-3 text-gray-800">Add Liquidity</h3>
+        <div class="space-y-3">
+          <input
+            type="number"
+            id="amount0Input"
+            placeholder="Token 0 Amount"
+            class="w-full p-2 border rounded-lg"
+          />
+          <input
+            type="number"
+            id="amount1Input"
+            placeholder="Token 1 Amount"
+            class="w-full p-2 border rounded-lg"
+          />
+          <div class="flex space-x-2">
+            <button
+              onclick="approveTokens()"
+              class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg"
+            >
+              Approve Tokens
+            </button>
+            <button
+              onclick="addLiquidity()"
+              class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg"
+            >
+              Add Liquidity
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Remove Liquidity Section -->
+      <div class="border rounded-lg p-4 bg-gray-50">
+        <h3 class="text-lg font-semibold mb-3 text-gray-800">
+          Remove Liquidity
+        </h3>
+        <div class="space-y-3">
+          <div class="flex items-center">
+            <span id="liquidityShares">Your Liquidity Shares: 0</span>
+          </div>
+          <input
+            type="number"
+            id="sharesToRemoveInput"
+            placeholder="Shares to Remove"
+            class="w-full p-2 border rounded-lg"
+          />
+          <button
+            onclick="removeLiquidity()"
+            class="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg"
+          >
+            Remove Liquidity
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/web3/4.5.0/web3.min.js"></script>
+<script type="module">
+  import Web3 from 'web3'
+  // Contract addresses and ABI configurations
+  const NETWORK_ID = '11155111' // Sepolia testnet
+  const CSAMM_CONTRACT_ADDRESS = '0xb1ba9DB205BA7162E46d4330091E8c2F40A65750'
+  const TOKEN0_CONTRACT_ADDRESS = '0x5509CDD163d1aFE5Ec9D76876E2e8D05C959A850'
+  const TOKEN1_CONTRACT_ADDRESS = '0xcE9210f785bb8cF106C8fbda90037B68d96610c2'
+
+  let web3
+  let account
+  let token0Contract
+  let token1Contract
+  let csammContract
+
+  // Modal functionality
+  const modal = document.getElementById('liquidityModal')
+
+  function showModal() {
+    modal.classList.remove('hidden')
+    modal.classList.add('flex')
+  }
+
+  function closeModal() {
+    modal.classList.add('hidden')
+    modal.classList.remove('flex')
+  }
+
+  // Web3 functionality
+  async function connectWallet() {
+    try {
+      if (!window.ethereum) {
+        alert('Please install MetaMask')
+        return
+      }
+
+      const accounts = await window.ethereum.request({
+        method: 'eth_requestAccounts'
+      })
+
+      web3 = new Web3(window.ethereum)
+      account = accounts[0]
+
+      // Initialize contracts
+      token0Contract = new web3.eth.Contract(TokenABI, TOKEN0_CONTRACT_ADDRESS)
+      token1Contract = new web3.eth.Contract(TokenABI, TOKEN1_CONTRACT_ADDRESS)
+      csammContract = new web3.eth.Contract(
+        CSAMMContract.abi,
+        CSAMM_CONTRACT_ADDRESS
+      )
+
+      await Promise.all([
+        fetchTokenDetails(),
+        refreshBalances(),
+        fetchVaultInfo()
+      ])
+    } catch (error) {
+      console.error('Wallet connection failed:', error)
+      alert('Failed to connect wallet: ' + error.message)
+    }
+  }
+  function explorePool() {
+    console.log('hii')
+  }
+
+  function cancelAction() {
+    closeModal()
+  }
+
+  async function fetchTokenDetails() {
+    try {
+      // Fetch Token 0 details
+      const name0 = await token0Contract.methods.name().call()
+      const symbol0 = await token0Contract.methods.symbol().call()
+      document.getElementById('token0Name').textContent = name0
+      document.getElementById('token0Symbol').textContent = symbol0
+
+      // Fetch Token 1 details
+      const name1 = await token1Contract.methods.name().call()
+      const symbol1 = await token1Contract.methods.symbol().call()
+      document.getElementById('token1Name').textContent = name1
+      document.getElementById('token1Symbol').textContent = symbol1
+    } catch (error) {
+      console.error('Error fetching token details:', error)
+    }
+  }
+
+  async function refreshBalances() {
+    try {
+      const balance0 = await token0Contract.methods.balanceOf(account).call()
+      const balance1 = await token1Contract.methods.balanceOf(account).call()
+
+      document.getElementById(
+        'token0Balance'
+      ).textContent = `Balance: ${web3.utils.fromWei(balance0, 'ether')}`
+      document.getElementById(
+        'token1Balance'
+      ).textContent = `Balance: ${web3.utils.fromWei(balance1, 'ether')}`
+    } catch (error) {
+      console.error('Error refreshing balances:', error)
+    }
+  }
+
+  async function fetchVaultInfo() {
+    try {
+      const totalLiquidity = await csammContract.methods.totalSupply().call()
+      const userShares = await csammContract.methods.balanceOf(account).call()
+      const initialLiquidity = await csammContract.methods
+        .initialLiquidity(account)
+        .call()
+      const roi = await csammContract.methods.calculateROI(account).call()
+
+      document.getElementById(
+        'totalLiquidity'
+      ).textContent = `${web3.utils.fromWei(totalLiquidity, 'ether')} Shares`
+      document.getElementById(
+        'liquidityShares'
+      ).textContent = `Your Liquidity Shares: ${web3.utils.fromWei(
+        userShares,
+        'ether'
+      )}`
+      document.getElementById('initialLiquidity').textContent =
+        web3.utils.fromWei(initialLiquidity, 'ether')
+      document.getElementById('roi').textContent = `${roi}%`
+    } catch (error) {
+      console.error('Error fetching vault info:', error)
+    }
+  }
+
+  async function approveTokens() {
+    try {
+      const amount0 = document.getElementById('amount0Input').value
+      const amount1 = document.getElementById('amount1Input').value
+
+      if (!amount0 || !amount1) {
+        alert('Please enter amounts for both tokens')
+        return
+      }
+
+      const amount0Wei = web3.utils.toWei(amount0, 'ether')
+      const amount1Wei = web3.utils.toWei(amount1, 'ether')
+
+      await token0Contract.methods
+        .approve(CSAMM_CONTRACT_ADDRESS, amount0Wei)
+        .send({ from: account })
+      await token1Contract.methods
+        .approve(CSAMM_CONTRACT_ADDRESS, amount1Wei)
+        .send({ from: account })
+
+      alert('Tokens approved successfully!')
+    } catch (error) {
+      console.error('Approval failed:', error)
+      alert('Failed to approve tokens: ' + error.message)
+    }
+  }
+
+  async function addLiquidity() {
+    try {
+      const amount0 = document.getElementById('amount0Input').value
+      const amount1 = document.getElementById('amount1Input').value
+
+      if (!amount0 || !amount1) {
+        alert('Please enter amounts for both tokens')
+        return
+      }
+
+      const amount0Wei = web3.utils.toWei(amount0, 'ether')
+      const amount1Wei = web3.utils.toWei(amount1, 'ether')
+
+      await csammContract.methods
+        .addLiquidity(amount0Wei, amount1Wei)
+        .send({ from: account })
+
+      await Promise.all([refreshBalances(), fetchVaultInfo()])
+
+      alert('Liquidity added successfully!')
+      document.getElementById('amount0Input').value = ''
+      document.getElementById('amount1Input').value = ''
+    } catch (error) {
+      console.error('Add liquidity failed:', error)
+      alert('Failed to add liquidity: ' + error.message)
+    }
+  }
+
+  async function removeLiquidity() {
+    try {
+      const sharesToRemove = document.getElementById(
+        'sharesToRemoveInput'
+      ).value
+
+      if (!sharesToRemove || parseFloat(sharesToRemove) <= 0) {
+        alert('Please enter a valid number of shares to remove')
+        return
+      }
+
+      const sharesToRemoveWei = web3.utils.toWei(sharesToRemove, 'ether')
+
+      await csammContract.methods
+        .removeLiquidity(sharesToRemoveWei)
+        .send({ from: account })
+
+      await Promise.all([refreshBalances(), fetchVaultInfo()])
+
+      alert('Liquidity removed successfully!')
+      document.getElementById('sharesToRemoveInput').value = ''
+    } catch (error) {
+      console.error('Remove liquidity failed:', error)
+      alert('Failed to remove liquidity: ' + error.message)
+    }
+  }
+
+  // Event listeners for window.ethereum
+  if (window.ethereum) {
+    window.ethereum.on('accountsChanged', (accounts) => {
+      if (accounts.length > 0) {
+        connectWallet()
+      }
+    })
+
+    window.ethereum.on('chainChanged', () => {
+      window.location.reload()
+    })
+  }
+
+  document.getElementById('explore').addEventListener('click', () => {
+    console.log('hii')
+  })
+</script>
 <script
   src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"
   integrity="sha512-6+YN/9o9BWrk6wSfGxQGpt3EUK6XeHi6yeHV+TYD2GR0Sj/cggRpXr1BrAQf0as6XslxomMUxXp2vIl+fv0QRA=="
@@ -223,4 +584,3 @@
 <script src="js/utils.js"></script>
 <script src="classes.js"></script>
 <script src="index.js"></script>
-<script src="battleScene.js"></script>

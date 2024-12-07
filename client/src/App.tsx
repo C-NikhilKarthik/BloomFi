@@ -7,6 +7,7 @@ import CreatePool from "./page/CreatePool";
 import KingOfTheHillSection from "./components/KingOfTheHillSection";
 import PoolCardsSection from "./components/PoolCardsSection";
 import Game from "./page/Game";
+import CheckPage from './page/CheckPage';
 
 const App: React.FC = () => {
   const [activeSection, setActiveSection] = useState("");
@@ -34,7 +35,8 @@ const App: React.FC = () => {
 
           <Route path="/" element={<ExplorePools />} />
           <Route path="/create" element={<CreatePool />} />
-          {/* <Route path="/game" element={<Game />} /> */}
+          <Route path="/check" element={<CheckPage />} />
+
         </Routes>
       </div>
     </Router>

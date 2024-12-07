@@ -19,6 +19,7 @@ export function checkForHouseCollision({
 }: CheckForCollisionParams): void {
   player.interactionAsset = null;
 
+
   for (const house of housesMap) {
     if (
       rectangularCollision({
@@ -33,6 +34,7 @@ export function checkForHouseCollision({
       })
     ) {
       player.interactionAsset = house;
+      console.log(house)
       break;
     }
   }
