@@ -58,10 +58,21 @@
   ></div>
 
   <button
-    class="p-4 py-2 bg-emerald-600 flex top-2 right-2 absolute z-[5] items-center justify-center hover:bg-emerald-700"
+    id="connectButton"
+    class="p-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 absolute top-2 right-2 z-[5]"
+    onclick="handleWalletConnection()"
   >
-    Dashboard
+    Connect
   </button>
+
+  <!-- Display Wallet Address -->
+  <div
+    id="walletInfo"
+    class="p-4 py-2 bg-emerald-600 text-white absolute right-2 top-2 z-[5] rounded-lg hover:bg-emerald-700"
+  >
+    <p class="text-lg font-medium">Wallet Address:</p>
+    <p id="walletAddress" class="text-gray-700 font-mono mt-2"></p>
+  </div>
 
   <div
     id="directions"
@@ -158,9 +169,7 @@
           display: none;
           cursor: pointer;
         "
-      >
-        sdkfjlsdajl
-      </div>
+      ></div>
       <div
         id="attacksBox"
         style="
@@ -340,6 +349,10 @@
     </div>
   </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/web3modal"></script>
+<script src="https://cdn.jsdelivr.net/npm/web3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@walletconnect/web3-provider"></script>
+<script src="https://cdn.jsdelivr.net/npm/ethereum-qr-code"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/4.5.0/web3.min.js"></script>
 <!-- <script type="module"></script> -->
 <script
@@ -367,3 +380,5 @@
 <script src="js/utils.js"></script>
 <script src="classes.js"></script>
 <script src="index.js"></script>
+<script src="js/wallet-connect.js"></script>
+<script src="js/web3-utils.js"></script>

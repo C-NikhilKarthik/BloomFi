@@ -101,6 +101,65 @@ function hideLoader() {
   // contentDiv.style.display = 'block'; // Show the content
 }
 
+async function handleWalletConnection() {
+  try {
+    const connectButton = document.getElementById('connectButton');
+    const walletInfo = document.getElementById('walletInfo');
+    const walletAddressDisplay = document.getElementById('walletAddress');
+
+    // Check if MetaMask is installed
+    if (!window.ethereum) {
+      alert('MetaMask is not installed. Please install MetaMask to use this feature.');
+      return;
+    }
+
+    if (connectButton.innerText === 'Connect') {
+      // Connect to MetaMask
+      const accounts = await window.ethereum.request({
+        method: 'eth_requestAccounts',
+      });
+      account = accounts[0];
+
+      // Initialize Web3
+      web3 = new Web3(window.ethereum);
+
+      // Update UI to show connected state
+      connectButton.innerText = 'Disconnect';
+      walletInfo.classList.remove('hidden');
+      walletAddressDisplay.textContent = `${account.slice(0, 6)}...${account.slice(-4)}`;
+    } else {
+      // Disconnect wallet
+      account = null;
+      connectButton.innerText = 'Connect';
+      walletInfo.classList.add('hidden');
+      walletAddressDisplay.textContent = '';
+    }
+  } catch (error) {
+    console.error('Error handling wallet connection:', error);
+    alert('An error occurred while connecting to the wallet.');
+  }
+}
+
+// Check if the wallet is already connected on page load
+async function checkWalletConnection() {
+  if (window.ethereum) {
+    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+    if (accounts.length > 0) {
+      // Wallet is already connected
+      account = accounts[0];
+      web3 = new Web3(window.ethereum);
+
+      // Update UI to show connected state
+      document.getElementById('connectButton').innerText = 'Disconnect';
+      const walletInfo = document.getElementById('walletInfo');
+      walletInfo.classList.remove('hidden');
+      document.getElementById('walletAddress').textContent = `${account.slice(0, 6)}...${account.slice(-4)}`;
+    }
+  }
+}
+
+window.addEventListener('DOMContentLoaded', checkWalletConnection);
+
 // Web3 functionality
 async function connectWallet() {
   try {
