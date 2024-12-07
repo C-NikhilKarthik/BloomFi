@@ -1,52 +1,64 @@
 // import Token from './abis/Token.json';
-let token0Contract;
-let token1Contract;
+let token0Contract
+let token1Contract
 
 // Function to fetch the Token ABI from the JSON file
 async function loadTokenAbi() {
   try {
-    const response = await fetch('abis/Token.json'); // Relative path to the JSON file
+    const response = await fetch('abis/Token.json') // Relative path to the JSON file
     if (!response.ok) {
-      throw new Error(`Failed to load Token.json: ${response.statusText}`);
+      throw new Error(`Failed to load Token.json: ${response.statusText}`)
     }
-    return await response.json(); // Return the parsed JSON content
+    return await response.json() // Return the parsed JSON content
   } catch (error) {
-    console.error('Error loading Token.json:', error);
-    alert('Failed to load Token ABI');
-    throw error; // Re-throw to halt execution if needed
+    console.error('Error loading Token.json:', error)
+    alert('Failed to load Token ABI')
+    throw error // Re-throw to halt execution if needed
   }
 }
 
 async function loadCSAMMAbi() {
   try {
-    const response = await fetch('abis/CSAMM.json'); // Relative path to the JSON file
+    const response = await fetch('abis/CSAMM.json') // Relative path to the JSON file
     if (!response.ok) {
-      throw new Error(`Failed to load Token.json: ${response.statusText}`);
+      throw new Error(`Failed to load Token.json: ${response.statusText}`)
     }
-    return await response.json(); // Return the parsed JSON content
+    return await response.json() // Return the parsed JSON content
   } catch (error) {
-    console.error('Error loading Token.json:', error);
-    alert('Failed to load Token ABI');
-    throw error; // Re-throw to halt execution if needed
+    console.error('Error loading Token.json:', error)
+    alert('Failed to load Token ABI')
+    throw error // Re-throw to halt execution if needed
   }
 }
 
-const canvas = document.querySelector('canvas');
-const c = canvas.getContext('2d');
+const canvas = document.querySelector('canvas')
+const c = canvas.getContext('2d')
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+canvas.width = window.innerWidth
+canvas.height = window.innerHeight
 
 // let pools = [];
-let loading = false;
-let error = null;
-let treeVal = 0;
-let treeNumber = 0;
+let loading = false
+let error = null
+let treeVal = 0
+let treeNumber = 0
 
 let pools = [
-  ['0xb1ba9DB205BA7162E46d4330091E8c2F40A65750', '0x5509CDD163d1aFE5Ec9D76876E2e8D05C959A850', '0xcE9210f785bb8cF106C8fbda90037B68d96610c2'],
-  ['0x9C73505a4CD7FADB38894BB2de2B5B9D3434531D', '0x60CAc3ad6be26ab6C9404ac848249AAa757bB39e', '0xc163e1CF682FDD9DfD9b17B60B3Bfd3aebD8eDAc'],
-  ['0x18b7570a2e89A50a266A0fEB36B0A4bC94BB4b85', '0x362b8C5de425b3FB31304EFbafaEF750c4E3489b', '0xE643Ee9825a2e6D263ac9812551928f393eC44c7']
+  [
+    '0xb1ba9DB205BA7162E46d4330091E8c2F40A65750',
+    '0x5509CDD163d1aFE5Ec9D76876E2e8D05C959A850',
+    '0xcE9210f785bb8cF106C8fbda90037B68d96610c2'
+  ],
+  [
+    '0x9C73505a4CD7FADB38894BB2de2B5B9D3434531D',
+    '0x60CAc3ad6be26ab6C9404ac848249AAa757bB39e',
+    '0xc163e1CF682FDD9DfD9b17B60B3Bfd3aebD8eDAc'
+  ],
+  [
+    '0x18b7570a2e89A50a266A0fEB36B0A4bC94BB4b85',
+    '0x362b8C5de425b3FB31304EFbafaEF750c4E3489b',
+    '0xE643Ee9825a2e6D263ac9812551928f393eC44c7'
+  ]
 ]
 
 // import Web3 from 'web3'
@@ -78,87 +90,94 @@ function closeModal() {
 }
 
 function showLoader() {
-  const loaderDiv = document.getElementById('loader'); // Ensure this is a simple text container like a span or div.
+  const loaderDiv = document.getElementById('loader') // Ensure this is a simple text container like a span or div.
 
-  loaderDiv.style.display = 'flex'; // Show the loader
-  loaderDiv.textContent = ''; // Clear previous text (if any)
+  loaderDiv.style.display = 'flex' // Show the loader
+  loaderDiv.textContent = '' // Clear previous text (if any)
 
-  let dotCount = 0;
+  let dotCount = 0
 
   // Create the animation
   setInterval(() => {
-    dotCount = (dotCount + 1) % 4; // Cycle between 0, 1, 2, 3
-    loaderDiv.textContent = 'Loading' + '.'.repeat(dotCount); // Update text content
-  }, 500); // Adjust speed as needed (500ms for each update)
+    dotCount = (dotCount + 1) % 4 // Cycle between 0, 1, 2, 3
+    loaderDiv.textContent = 'Loading' + '.'.repeat(dotCount) // Update text content
+  }, 500) // Adjust speed as needed (500ms for each update)
 }
 
-
 function hideLoader() {
-  const loaderDiv = document.getElementById('loader');
+  const loaderDiv = document.getElementById('loader')
   // const contentDiv = document.getElementById('modalContent');
 
-  loaderDiv.style.display = 'none'; // Hide the loader
+  loaderDiv.style.display = 'none' // Hide the loader
   // contentDiv.style.display = 'block'; // Show the content
 }
 
 async function handleWalletConnection() {
   try {
-    const connectButton = document.getElementById('connectButton');
-    const walletInfo = document.getElementById('walletInfo');
-    const walletAddressDisplay = document.getElementById('walletAddress');
+    const connectButton = document.getElementById('connectButton')
+    const walletInfo = document.getElementById('walletInfo')
+    const walletAddressDisplay = document.getElementById('walletAddress')
 
     // Check if MetaMask is installed
     if (!window.ethereum) {
-      alert('MetaMask is not installed. Please install MetaMask to use this feature.');
-      return;
+      alert(
+        'MetaMask is not installed. Please install MetaMask to use this feature.'
+      )
+      return
     }
 
     if (connectButton.innerText === 'Connect') {
       // Connect to MetaMask
       const accounts = await window.ethereum.request({
-        method: 'eth_requestAccounts',
-      });
-      account = accounts[0];
+        method: 'eth_requestAccounts'
+      })
+      account = accounts[0]
 
       // Initialize Web3
-      web3 = new Web3(window.ethereum);
+      web3 = new Web3(window.ethereum)
 
       // Update UI to show connected state
-      connectButton.innerText = 'Disconnect';
-      walletInfo.classList.remove('hidden');
-      walletAddressDisplay.textContent = `${account.slice(0, 6)}...${account.slice(-4)}`;
+      connectButton.innerText = 'Disconnect'
+      walletInfo.classList.remove('hidden')
+      walletAddressDisplay.textContent = `${account.slice(
+        0,
+        6
+      )}...${account.slice(-4)}`
     } else {
       // Disconnect wallet
-      account = null;
-      connectButton.innerText = 'Connect';
-      walletInfo.classList.add('hidden');
-      walletAddressDisplay.textContent = '';
+      account = null
+      connectButton.innerText = 'Connect'
+      walletInfo.classList.add('hidden')
+      walletAddressDisplay.textContent = ''
     }
   } catch (error) {
-    console.error('Error handling wallet connection:', error);
-    alert('An error occurred while connecting to the wallet.');
+    console.error('Error handling wallet connection:', error)
+    alert('An error occurred while connecting to the wallet.')
   }
 }
 
 // Check if the wallet is already connected on page load
 async function checkWalletConnection() {
   if (window.ethereum) {
-    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+    const accounts = await window.ethereum.request({ method: 'eth_accounts' })
     if (accounts.length > 0) {
       // Wallet is already connected
-      account = accounts[0];
-      web3 = new Web3(window.ethereum);
+      account = accounts[0]
+      web3 = new Web3(window.ethereum)
 
       // Update UI to show connected state
       document.getElementById('connectButton').classList.add('hidden')
-      const walletInfo = document.getElementById('walletInfo');
-      walletInfo.classList.remove('hidden');
-      document.getElementById('walletAddress').textContent = `${account.slice(0, 6)}...${account.slice(-4)}`;
+      const walletInfo = document.getElementById('walletInfo')
+      walletInfo.classList.remove('hidden')
+      document.getElementById('walletAddress').textContent = `${account.slice(
+        0,
+        6
+      )}...${account.slice(-4)}`
     }
   }
 }
 
-window.addEventListener('DOMContentLoaded', checkWalletConnection);
+window.addEventListener('DOMContentLoaded', checkWalletConnection)
 
 // Web3 functionality
 async function connectWallet() {
@@ -174,8 +193,8 @@ async function connectWallet() {
 
     web3 = new Web3(window.ethereum)
     account = accounts[0]
-    const Token = await loadTokenAbi();
-    const CSAMMContract = await loadCSAMMAbi();
+    const Token = await loadTokenAbi()
+    const CSAMMContract = await loadCSAMMAbi()
 
     // Initialize contracts
     token0Contract = new web3.eth.Contract(Token.abi, TOKEN0_CONTRACT_ADDRESS)
@@ -211,7 +230,9 @@ async function fetchTokenDetails() {
 
     document.getElementById('token0Name').textContent = name0
     document.getElementById('token0Symbol').textContent = symbol0
-    document.getElementById('token0Image').style.backgroundImage = `url(${url0})`
+    document.getElementById(
+      'token0Image'
+    ).style.backgroundImage = `url(${url0})`
 
     // Fetch Token 1 details
     const name1 = await token1Contract.methods.name().call()
@@ -219,7 +240,9 @@ async function fetchTokenDetails() {
     const url1 = await token1Contract.methods.tokenImageUrl().call()
     document.getElementById('token1Name').textContent = name1
     document.getElementById('token1Symbol').textContent = symbol1
-    document.getElementById('token1Image').style.backgroundImage = `url(${url1})`
+    document.getElementById(
+      'token1Image'
+    ).style.backgroundImage = `url(${url1})`
   } catch (error) {
     console.error('Error fetching token details:', error)
   }
@@ -343,9 +366,7 @@ async function addLiquidity() {
 
 async function removeLiquidity() {
   try {
-    const sharesToRemove = document.getElementById(
-      'sharesToRemoveInput'
-    ).value
+    const sharesToRemove = document.getElementById('sharesToRemoveInput').value
 
     if (!sharesToRemove || parseFloat(sharesToRemove) <= 0) {
       alert('Please enter a valid number of shares to remove')
@@ -435,8 +456,6 @@ if (window.ethereum) {
 //   }
 // }
 
-
-
 function fetchPools() {
   // pools = [
   //   '0xb1ba9DB205BA7162E46d4330091E8c2F40A65750',
@@ -450,35 +469,34 @@ function fetchPools() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('DOM fully loaded and parsed');
-  fetchPools();
-});
-
+  console.log('DOM fully loaded and parsed')
+  fetchPools()
+})
 
 function setupAndStartGame() {
   // All the code that was previously after the DOMContentLoaded event listener goes here
-  const collisionsMap = [];
+  const collisionsMap = []
   for (let i = 0; i < collisions.length; i += 150) {
-    collisionsMap.push(collisions.slice(i, 150 + i));
+    collisionsMap.push(collisions.slice(i, 150 + i))
   }
 
-  const houseMap = [];
+  const houseMap = []
   for (let i = 0; i < houses.length; i += 150) {
-    houseMap.push(houses.slice(i, 150 + i));
+    houseMap.push(houses.slice(i, 150 + i))
   }
 
-  console.log(treeNumber);
-  const treeMap = [];
+  console.log(treeNumber)
+  const treeMap = []
   for (let i = 0; i < trees.length; i += 150) {
-    treeMap.push(trees.slice(i, 150 + i));
+    treeMap.push(trees.slice(i, 150 + i))
   }
-  console.log(treeMap);
+  console.log(treeMap)
 
-  const boundaries = [];
+  const boundaries = []
   const offset = {
     x: -900,
     y: -700
-  };
+  }
 
   collisionsMap.forEach((row, i) => {
     row.forEach((symbol, j) => {
@@ -490,11 +508,11 @@ function setupAndStartGame() {
               y: i * Boundary.height + offset.y
             }
           })
-        );
-    });
-  });
+        )
+    })
+  })
 
-  const housesMap = [];
+  const housesMap = []
   houseMap.forEach((row, i) => {
     row.forEach((symbol, j) => {
       if (symbol !== 0)
@@ -506,20 +524,23 @@ function setupAndStartGame() {
             },
             dialogue: ['...', 'Hey mister, have you seen my Doggochu?']
           })
-        );
-    });
-  });
+        )
+    })
+  })
 
-  const tree1Image = new Image();
-  tree1Image.src = './img/tree1.png';
+  const tree1Image = new Image()
+  tree1Image.src =
+    'https://aggregator.walrus-testnet.walrus.space/v1/L44d84wxVCelypd1nS4MjPGm2SddvhNLZ03-0SeJNhs'
 
-  const tree2Image = new Image();
-  tree2Image.src = './img/tree2.png';
+  const tree2Image = new Image()
+  tree2Image.src =
+    'https://aggregator.walrus-testnet.walrus.space/v1/7R6ynIQw4Va3beydbU-KkDgtWpgfWU1BsCxllrSIRWU'
 
-  const tree3Image = new Image();
-  tree3Image.src = './img/tree3.png';
+  const tree3Image = new Image()
+  tree3Image.src =
+    'https://aggregator.walrus-testnet.walrus.space/v1/fivcM3vYW8xFFuda9uBClU_SRNG8N1o5ZvCaE2UUxpg'
 
-  const treeZones = [];
+  const treeZones = []
   treeMap.forEach((row, i) => {
     row.forEach((symbol, j) => {
       if (symbol === 258)
@@ -532,7 +553,7 @@ function setupAndStartGame() {
             scale: 3.2,
             image: tree1Image
           })
-        );
+        )
 
       if (symbol === 294)
         treeZones.push(
@@ -544,43 +565,51 @@ function setupAndStartGame() {
             scale: 3.2,
             image: tree2Image
           })
-        );
-    });
-  });
+        )
+    })
+  })
 
   function getRandomTreeZones(treeZones, treeNumber) {
-    const selectedZones = [];
-    const usedIndices = new Set();
+    const selectedZones = []
+    const usedIndices = new Set()
 
-    while (selectedZones.length < treeNumber && usedIndices.size < treeZones.length) {
-      const randomIndex = Math.floor(Math.random() * treeZones.length);
+    while (
+      selectedZones.length < treeNumber &&
+      usedIndices.size < treeZones.length
+    ) {
+      const randomIndex = Math.floor(Math.random() * treeZones.length)
       if (!usedIndices.has(randomIndex)) {
-        usedIndices.add(randomIndex);
-        selectedZones.push(treeZones[randomIndex]);
+        usedIndices.add(randomIndex)
+        selectedZones.push(treeZones[randomIndex])
       }
     }
 
-    return selectedZones;
+    return selectedZones
   }
-  const newTreeZones = getRandomTreeZones(treeZones, treeNumber);
-  treeZones.length = 0; // Clear original treeZones
-  treeZones.push(...newTreeZones);
-  console.log(treeZones);
+  const newTreeZones = getRandomTreeZones(treeZones, treeNumber)
+  treeZones.length = 0 // Clear original treeZones
+  treeZones.push(...newTreeZones)
+  console.log(treeZones)
 
-  const image = new Image();
-  image.src = './img/GameMapFinal.png';
+  const image = new Image()
+  image.src =
+    'https://aggregator.walrus-testnet.walrus.space/v1/IVV2-TgQohZoNBs0rXx596wCo45356IEVS2eb3JNUKU'
 
-  const playerDownImage = new Image();
-  playerDownImage.src = './img/playerDown.png';
+  const playerDownImage = new Image()
+  playerDownImage.src =
+    'https://aggregator.walrus-testnet.walrus.space/v1/ToX9bwgPq4MqKr7w_3dT8PZIKdcsJhpeG2qNW5ARWOE'
 
-  const playerUpImage = new Image();
-  playerUpImage.src = './img/playerUp.png';
+  const playerUpImage = new Image()
+  playerUpImage.src =
+    'https://aggregator.walrus-testnet.walrus.space/v1/cIAXDfy117Qe1UA1jcTNAz2ZlD7YfKwqtboUAVN6700'
 
-  const playerLeftImage = new Image();
-  playerLeftImage.src = './img/playerLeft.png';
+  const playerLeftImage = new Image()
+  playerLeftImage.src =
+    'https://aggregator.walrus-testnet.walrus.space/v1/FVYt9T7wBJR9BNTjt0O2UkIeeMuR9V7lut9-O7hw5_k'
 
-  const playerRightImage = new Image();
-  playerRightImage.src = './img/playerRight.png';
+  const playerRightImage = new Image()
+  playerRightImage.src =
+    'https://aggregator.walrus-testnet.walrus.space/v1/yKa29JOw9HjmyazBx7JMeO0fg9C2NzBjBO_zc-ATnwY'
 
   const player = new Sprite({
     position: {
@@ -598,7 +627,7 @@ function setupAndStartGame() {
       right: playerRightImage,
       down: playerDownImage
     }
-  });
+  })
 
   const background = new Sprite({
     position: {
@@ -606,7 +635,7 @@ function setupAndStartGame() {
       y: offset.y
     },
     image: image
-  });
+  })
 
   const keys = {
     w: {
@@ -621,29 +650,24 @@ function setupAndStartGame() {
     d: {
       pressed: false
     }
-  };
+  }
 
-  const movables = [
-    background,
-    ...boundaries,
-    ...housesMap,
-    ...treeZones
-  ];
+  const movables = [background, ...boundaries, ...housesMap, ...treeZones]
   const renderables = [
     background,
     ...boundaries,
     ...housesMap,
     player,
     ...treeZones
-  ];
+  ]
 
   function animate() {
-    const animationId = window.requestAnimationFrame(animate);
+    const animationId = window.requestAnimationFrame(animate)
     renderables.forEach((renderable) => {
-      renderable.draw();
-    });
+      renderable.draw()
+    })
 
-    const directionsDiv = document.getElementById('directions');
+    const directionsDiv = document.getElementById('directions')
 
     if (player.interactionAsset === null) {
       // Make it visible and animate popping in
@@ -651,45 +675,49 @@ function setupAndStartGame() {
         directionsDiv,
         { y: '100%', opacity: 0 }, // Starting position: bottom and invisible
         {
-          y: '0%', opacity: 1, duration: 1, ease: 'power2.out', // Ensure the div is visible during the animation
-
+          y: '0%',
+          opacity: 1,
+          duration: 1,
+          ease: 'power2.out' // Ensure the div is visible during the animation
         }
-      );
+      )
     } else {
       // Animate popping out and then hide it
       gsap.fromTo(
         directionsDiv,
         { y: '0%', opacity: 1 }, // Current visible position
         {
-          y: '100%', opacity: 0, duration: 1, ease: 'power2.out'
+          y: '100%',
+          opacity: 0,
+          duration: 1,
+          ease: 'power2.out'
         }
-      );
+      )
     }
 
-
-    let moving = true;
-    player.animate = false;
+    let moving = true
+    player.animate = false
 
     if (keys.w.pressed && lastKey === 'w') {
-      player.animate = true;
-      player.image = player.sprites.up;
+      player.animate = true
+      player.image = player.sprites.up
 
       checkForHouseCollision({
         housesMap,
         player,
         characterOffset: { x: 0, y: 3 }
-      });
+      })
 
       if (player.interactionAsset === null) {
         treeVal = checkForTreeCollision({
           treeZones,
           player,
           characterOffset: { x: 0, y: 3 }
-        });
+        })
       }
 
       for (let i = 0; i < boundaries.length; i++) {
-        const boundary = boundaries[i];
+        const boundary = boundaries[i]
         if (
           rectangularCollision({
             rectangle1: player,
@@ -702,24 +730,24 @@ function setupAndStartGame() {
             }
           })
         ) {
-          moving = false;
-          break;
+          moving = false
+          break
         }
       }
 
       if (moving)
         movables.forEach((movable) => {
-          movable.position.y += 3;
-        });
+          movable.position.y += 3
+        })
     } else if (keys.a.pressed && lastKey === 'a') {
-      player.animate = true;
-      player.image = player.sprites.left;
+      player.animate = true
+      player.image = player.sprites.left
 
       checkForHouseCollision({
         housesMap,
         player,
         characterOffset: { x: 3, y: 0 }
-      });
+      })
 
       if (player.interactionAsset === null) {
         treeVal = checkForTreeCollision({
@@ -727,11 +755,11 @@ function setupAndStartGame() {
           player,
           characterOffset: { x: 3, y: 0 },
           treeVal
-        });
+        })
       }
 
       for (let i = 0; i < boundaries.length; i++) {
-        const boundary = boundaries[i];
+        const boundary = boundaries[i]
         if (
           rectangularCollision({
             rectangle1: player,
@@ -744,24 +772,24 @@ function setupAndStartGame() {
             }
           })
         ) {
-          moving = false;
-          break;
+          moving = false
+          break
         }
       }
 
       if (moving)
         movables.forEach((movable) => {
-          movable.position.x += 3;
-        });
+          movable.position.x += 3
+        })
     } else if (keys.s.pressed && lastKey === 's') {
-      player.animate = true;
-      player.image = player.sprites.down;
+      player.animate = true
+      player.image = player.sprites.down
 
       checkForHouseCollision({
         housesMap,
         player,
         characterOffset: { x: 0, y: -3 }
-      });
+      })
 
       if (player.interactionAsset === null) {
         treeVal = checkForTreeCollision({
@@ -769,11 +797,11 @@ function setupAndStartGame() {
           player,
           characterOffset: { x: 0, y: -3 },
           treeVal
-        });
+        })
       }
 
       for (let i = 0; i < boundaries.length; i++) {
-        const boundary = boundaries[i];
+        const boundary = boundaries[i]
         if (
           rectangularCollision({
             rectangle1: player,
@@ -786,24 +814,24 @@ function setupAndStartGame() {
             }
           })
         ) {
-          moving = false;
-          break;
+          moving = false
+          break
         }
       }
 
       if (moving)
         movables.forEach((movable) => {
-          movable.position.y -= 3;
-        });
+          movable.position.y -= 3
+        })
     } else if (keys.d.pressed && lastKey === 'd') {
-      player.animate = true;
-      player.image = player.sprites.right;
+      player.animate = true
+      player.image = player.sprites.right
 
       checkForHouseCollision({
         housesMap,
         player,
         characterOffset: { x: -3, y: 0 }
-      });
+      })
 
       if (player.interactionAsset === null) {
         treeVal = checkForTreeCollision({
@@ -811,11 +839,11 @@ function setupAndStartGame() {
           player,
           characterOffset: { x: -3, y: 0 },
           treeVal
-        });
+        })
       }
 
       for (let i = 0; i < boundaries.length; i++) {
-        const boundary = boundaries[i];
+        const boundary = boundaries[i]
         if (
           rectangularCollision({
             rectangle1: player,
@@ -828,46 +856,145 @@ function setupAndStartGame() {
             }
           })
         ) {
-          moving = false;
-          break;
+          moving = false
+          break
         }
       }
 
       if (moving)
         movables.forEach((movable) => {
-          movable.position.x -= 3;
-        });
+          movable.position.x -= 3
+        })
     }
   }
 
-  let lastKey = '';
+  let lastKey = ''
 
   window.addEventListener('keydown', (e) => {
     if (player.isInteracting) {
       switch (e.key) {
         case 'Escape':
           if (player.interactionAsset.type === 'House') {
-            player.isInteracting = false;
-            player.interactionAsset.dialogueIndex = 0;
-            document.querySelector('#houseDialogueBox').style.display = 'none';
+            player.isInteracting = false
+            player.interactionAsset.dialogueIndex = 0
+            document.querySelector('#houseDialogueBox').style.display = 'none'
           } else {
-            player.isInteracting = false;
-            player.interactionAsset.dialogueIndex = 0;
-            document.querySelector('#characterDialogueBox').style.display = 'none';
+            player.isInteracting = false
+            player.interactionAsset.dialogueIndex = 0
+            document.querySelector('#characterDialogueBox').style.display =
+              'none'
           }
-          break;
+          break
       }
-      return;
+      return
+    }
+
+    async function getInventoryData() {
+      const tokens = [
+        '0x5509CDD163d1aFE5Ec9D76876E2e8D05C959A850',
+        '0xcE9210f785bb8cF106C8fbda90037B68d96610c2',
+        '0x60CAc3ad6be26ab6C9404ac848249AAa757bB39e',
+        '0xc163e1CF682FDD9DfD9b17B60B3Bfd3aebD8eDAc',
+        '0x362b8C5de425b3FB31304EFbafaEF750c4E3489b',
+        '0xE643Ee9825a2e6D263ac9812551928f393eC44c7'
+      ]
+
+      const Token = await loadTokenAbi() // Load the token ABI
+      let token_names = []
+
+      for (let tokenAddress of tokens) {
+        const tokenContract = new web3.eth.Contract(Token.abi, tokenAddress)
+
+        try {
+          const balance = await tokenContract.methods.balanceOf(account).call()
+          const balance_in_ethers = web3.utils.fromWei(balance, 'ether')
+          const name = await tokenContract.methods.name().call()
+          const symbol = await tokenContract.methods.symbol().call()
+          const url = await tokenContract.methods.tokenImageUrl().call()
+
+          // Check if balance > 0 and add to the filtered list
+          if (balance > 0) {
+            token_names.push({
+              tokenAddress,
+              name,
+              balance_in_ethers,
+              symbol,
+              url
+            })
+          }
+        } catch (error) {
+          console.error(
+            `Failed to fetch balance for token: ${tokenAddress}`,
+            error
+          )
+        }
+      }
+      console.log(token_names)
+      return token_names // Return the filtered balances
     }
 
     switch (e.key) {
       case ' ':
-        if (!player.interactionAsset) return;
+        if (!player.interactionAsset) return
         if (player.interactionAsset.type === 'House') {
-          const firstMessage = player.interactionAsset.dialogue[0];
-          document.querySelector('#houseDialogueBox').innerHTML = firstMessage;
-          document.querySelector('#houseDialogueBox').style.display = 'flex';
-          player.isInteracting = true;
+          // Initially show the modal and display loading message
+          document.querySelector('#houseDialogueBox').innerHTML = `
+            <div class="bg-gray-800 text-white p-6 rounded-lg shadow-xl max-w-4xl mx-auto">
+              <div class="text-center text-2xl font-semibold mb-4">Inventory</div>
+              <div id="loadingMessage" class="text-center text-gray-300">Loading...</div>
+            </div>
+          `
+          document.querySelector('#houseDialogueBox').style.display = 'flex '
+
+          // Set player interaction state
+          player.isInteracting = true
+
+          // Call the async function to fetch inventory data
+          getInventoryData()
+            .then((data) => {
+              console.log(data) // Log the inventory data for debugging
+
+              // Construct the grid layout HTML for the inventory data
+              const inventoryHtml = data.length
+                ? `
+                  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
+                    ${data
+                      .map(
+                        (item) => `
+                        <div class="border bg-gray-900 p-4 rounded-lg shadow-lg transform transition-all hover:scale-105 hover:shadow-2xl duration-300">
+                          <img src="${item.url}" alt="${item.name}" class="w-full h-32 object-cover mb-3 rounded-lg shadow-md">
+                          <div class="text-center">
+                            <h3 class="text-xl font-semibold text-white truncate">${item.name}</h3>
+                            <p class="text-sm text-gray-400 truncate">Address: ${item.tokenAddress}</p>
+                            <p class="text-sm text-gray-300 mt-2">Balance: <span class="text-green-400">${item.balance_in_ethers} ${item.symbol}</span></p>
+                          </div>
+                        </div>
+                      `
+                      )
+                      .join('')}
+                  </div>
+                `
+                : '<p class="text-center text-gray-400">No items in inventory.</p>'
+
+              // Update the modal with the fetched inventory data
+              document.querySelector('#houseDialogueBox').innerHTML = `
+              <div class="bg-gray-800 text-white p-6 rounded-lg shadow-xl max-w-4xl mx-auto">
+                <div class="text-center text-2xl font-semibold mb-4">Inventory</div>
+                ${inventoryHtml}
+              </div>
+            `
+            })
+            .catch((error) => {
+              console.error('Failed to fetch inventory data:', error)
+
+              // In case of an error, display an error message
+              document.querySelector('#houseDialogueBox').innerHTML = `
+              <div class="bg-gray-800 text-white p-6 rounded-lg shadow-xl max-w-4xl mx-auto">
+                <div class="text-center text-2xl font-semibold mb-4">Inventory</div>
+                <p class="text-center text-gray-400">Error loading inventory data.</p>
+              </div>
+            `
+            })
         } else {
           console.log(treeVal)
           CSAMM_CONTRACT_ADDRESS = pools[treeVal][0]
@@ -910,19 +1037,19 @@ function setupAndStartGame() {
   Cancel <span class="text-sm text-gray-300">[Esc]</span>
 </button>          </div>
         </div>`
-          document.querySelector('#characterDialogueBox').style.display = 'flex';
-          player.isInteracting = true;
+          document.querySelector('#characterDialogueBox').style.display = 'flex'
+          player.isInteracting = true
         }
-        break;
+        break
       case 'w':
       case 'a':
       case 's':
       case 'd':
-        keys[e.key].pressed = true;
-        lastKey = e.key;
-        break;
+        keys[e.key].pressed = true
+        lastKey = e.key
+        break
     }
-  });
+  })
 
   window.addEventListener('keyup', (e) => {
     switch (e.key) {
@@ -930,24 +1057,24 @@ function setupAndStartGame() {
       case 'a':
       case 's':
       case 'd':
-        keys[e.key].pressed = false;
-        break;
+        keys[e.key].pressed = false
+        break
     }
-  });
+  })
 
-  let clicked = false;
+  let clicked = false
   addEventListener('click', () => {
     if (!clicked) {
-      audio.Map.play();
-      clicked = true;
+      audio.Map.play()
+      clicked = true
     }
-  });
+  })
 
   // Start the game loop
-  animate();
+  animate()
 }
 
 // Log that the script has loaded
-console.log("Script loaded");
+console.log('Script loaded')
 // fetchPools()
 // setupAndStartGame()
