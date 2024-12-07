@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Web3 from 'web3';
 import TokenABI from "../abis/Token.json"
 import CSAMMContract from "../abis/CSAMM.json"
+import { ThermometerSnowflake } from 'lucide-react';
 
 const CheckPage = () => {
     // State variables
@@ -25,11 +26,25 @@ const CheckPage = () => {
         token1: false
     });
 
+    // New state for token details
+    const [token0Details, setToken0Details] = useState({
+        name: '',
+        symbol: '',
+        imageUrl: ''
+    });
+    const [token1Details, setToken1Details] = useState({
+        name: '',
+        symbol: '',
+        imageUrl: ''
+    });
+
+    console.log(token0Details)
+
     // Network and contract configuration
     const NETWORK_ID = '11155111'; // Sepolia testnet
-    const CSAMM_CONTRACT_ADDRESS = "0x7e2c53C0687267257d27d9D8B9F948b7e500F317";
-    const TOKEN0_CONTRACT_ADDRESS = "0x3dcaa96095610216591849121383Cc6C2888f249";
-    const TOKEN1_CONTRACT_ADDRESS = "0xdF9807DDF696163eADf474E9627c56F2115919D0";
+    const CSAMM_CONTRACT_ADDRESS = "0xb1ba9DB205BA7162E46d4330091E8c2F40A65750";
+    const TOKEN0_CONTRACT_ADDRESS = "0x5509CDD163d1aFE5Ec9D76876E2e8D05C959A850";
+    const TOKEN1_CONTRACT_ADDRESS = "0xcE9210f785bb8cF106C8fbda90037B68d96610c2";
 
     // Show alert with timeout
     const showAlert = (type, message) => {
@@ -37,39 +52,19 @@ const CheckPage = () => {
         setTimeout(() => setAlert({ type: '', message: '' }), 5000);
     };
 
-    // Mint tokens for a specific token contract
-    const mintTokens = async (tokenContract, amount) => {
+    // Fetch token details
+    const fetchTokenDetails = async (tokenContract, setTokenDetails) => {
         try {
-            // Reset previous alerts
-            setAlert({ type: '', message: '' });
+            const name = await tokenContract.methods.name().call();
+            const symbol = await tokenContract.methods.symbol().call();
 
-            // Validate input
-            if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
-                showAlert('error', 'Please enter a valid amount to mint');
-                return;
-            }
+            // Fetch image URL hash and convert to string
+            const imageUrlHash = await tokenContract.methods.tokenImageUrl().call();
+            const imageUrl = imageUrlHash
 
-            // Convert amount to Wei
-            const amountWei = web3.utils.toWei(amount, 'ether');
-
-            // Mint tokens
-            await tokenContract.methods.mint(account, amountWei)
-                .send({ from: account });
-
-            // Refresh balance
-            const balance = await tokenContract.methods.balanceOf(account).call();
-
-            // Update balance based on which token was minted
-            if (tokenContract._address === TOKEN0_CONTRACT_ADDRESS) {
-                setToken0Balance(web3.utils.fromWei(balance, 'ether'));
-            } else if (tokenContract._address === TOKEN1_CONTRACT_ADDRESS) {
-                setToken1Balance(web3.utils.fromWei(balance, 'ether'));
-            }
-
-            showAlert('success', 'Tokens minted successfully!');
+            setTokenDetails({ name, symbol, imageUrl });
         } catch (error) {
-            showAlert('error', `Token minting failed: ${error.message}`);
-            console.error(error);
+            console.error('Error fetching token details:', error);
         }
     };
 
@@ -113,6 +108,10 @@ const CheckPage = () => {
             setToken0Contract(token0ContractInstance);
             setToken1Contract(token1ContractInstance);
             setCsammContract(csammContractInstance);
+
+            // Fetch token details
+            await fetchTokenDetails(token0ContractInstance, setToken0Details);
+            await fetchTokenDetails(token1ContractInstance, setToken1Details);
 
             // Fetch balances
             const balance0 = await token0ContractInstance.methods.balanceOf(accounts[0]).call();
@@ -283,6 +282,37 @@ const CheckPage = () => {
                     </button>
                 </div>
 
+                {/* Token Details Section */}
+                {account && (
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                        {/* Token 0 Details */}
+                        <div className="border rounded-lg p-3 text-center">
+                            {token0Details.imageUrl && (
+                                <img
+                                    src={token0Details.imageUrl}
+                                    alt={`${token0Details.name} logo`}
+                                    className="w-16 h-16 mx-auto mb-2 rounded-full"
+                                />
+                            )}
+                            <div className="font-semibold">{token0Details.name}</div>
+                            <div className="text-sm text-gray-600">{token0Details.symbol}</div>
+                        </div>
+
+                        {/* Token 1 Details */}
+                        <div className="border rounded-lg p-3 text-center">
+                            {token1Details.imageUrl && (
+                                <img
+                                    src={token1Details.imageUrl}
+                                    alt={`${token1Details.name} logo`}
+                                    className="w-16 h-16 mx-auto mb-2 rounded-full"
+                                />
+                            )}
+                            <div className="font-semibold">{token1Details.name}</div>
+                            <div className="text-sm text-gray-600">{token1Details.symbol}</div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Connected Account Details */}
                 {account && (
                     <div className="space-y-4">
@@ -302,22 +332,14 @@ const CheckPage = () => {
                         {/* Token 0 Balance and Deposit */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Token 0 Balance
+                                {token0Details.symbol} Balance
                             </label>
-                            <div className="flex space-x-2 mb-2">
-                                <input
-                                    type="text"
-                                    value={token0Balance}
-                                    readOnly
-                                    className="flex-grow px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
-                                />
-                                <button
-                                    onClick={() => mintTokens(token0Contract, '100')}
-                                    className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg"
-                                >
-                                    Mint 100
-                                </button>
-                            </div>
+                            <input
+                                type="text"
+                                value={token0Balance}
+                                readOnly
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 mb-2"
+                            />
                             <input
                                 type="number"
                                 value={amount0}
@@ -330,22 +352,14 @@ const CheckPage = () => {
                         {/* Token 1 Balance and Deposit */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Token 1 Balance
+                                {token1Details.symbol} Balance
                             </label>
-                            <div className="flex space-x-2 mb-2">
-                                <input
-                                    type="text"
-                                    value={token1Balance}
-                                    readOnly
-                                    className="flex-grow px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
-                                />
-                                <button
-                                    onClick={() => mintTokens(token1Contract, '100')}
-                                    className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg"
-                                >
-                                    Mint 100
-                                </button>
-                            </div>
+                            <input
+                                type="text"
+                                value={token1Balance}
+                                readOnly
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 mb-2"
+                            />
                             <input
                                 type="number"
                                 value={amount1}
