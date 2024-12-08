@@ -237,6 +237,7 @@ async function handleWalletConnection() {
 
       // Update UI to show connected state
       connectButton.innerText = 'Disconnect'
+      connectButton.classList.add('hidden')
       walletInfo.classList.remove('hidden')
       walletAddressDisplay.textContent = `${account.slice(
         0,
