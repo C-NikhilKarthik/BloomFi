@@ -3,10 +3,67 @@ let token0Contract
 let token1Contract
 
 let POLYGON_TREES
+let BASE_TREES
+
 
 const GEMINI_API_KEY = "AIzaSyADMHAZxAppXgeULpY-6G7FqD4pWYNIHQY";
 
 let islandVal
+
+// Function to create and show toast notification
+function showToast(message) {
+  // Create a new toast element
+  const toast = document.createElement('div');
+  toast.classList.add(
+    'bg-white',
+    'text-black',
+    'p-4',
+    'rounded-lg',
+    'w-96',
+    'shadow-lg',
+    'opacity-0', // Initially hidden
+    'transform',
+    'transition-transform',
+    'duration-500',
+    'ease-in-out',
+    'flex',
+    'items-center',
+    'justify-between'
+  );
+
+  // Add message to toast
+  toast.innerHTML = `
+    <span>${message}</span>
+    <button class="ml-4 text-white" onclick="closeToast(this)">×</button>
+  `;
+
+  // Append the toast to the container
+  const toastContainer = document.getElementById('toast-container');
+  toastContainer.appendChild(toast);
+
+  // GSAP animation to show the toast (fade-in + slide up)
+  gsap.to(toast, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
+
+  // Remove the toast after 5 seconds (with GSAP fade-out animation)
+  setTimeout(() => {
+    gsap.to(toast, {
+      opacity: 0, y: -50, duration: 0.5, ease: 'power2.in', onComplete: () => {
+        toast.remove(); // Remove from DOM after animation
+      }
+    });
+  }, 3000); // 3 seconds for visibility before fading out
+}
+
+// Function to close toast manually when '×' is clicked
+function closeToast(button) {
+  const toast = button.parentElement;
+  gsap.to(toast, {
+    opacity: 0, y: -50, duration: 0.5, ease: 'power2.in', onComplete: () => {
+      toast.remove(); // Remove from DOM after animation
+    }
+  });
+}
+
 
 // Function to fetch the Token ABI from the JSON file
 async function loadTokenAbi() {
@@ -18,7 +75,7 @@ async function loadTokenAbi() {
     return await response.json() // Return the parsed JSON content
   } catch (error) {
     console.error('Error loading Token.json:', error)
-    alert('Failed to load Token ABI')
+    showToast('Failed to load Token ABI')
     throw error // Re-throw to halt execution if needed
   }
 }
@@ -32,7 +89,7 @@ async function loadCSAMMAbi() {
     return await response.json() // Return the parsed JSON content
   } catch (error) {
     console.error('Error loading Token.json:', error)
-    alert('Failed to load Token ABI')
+    showToast('Failed to load Token ABI')
     throw error // Re-throw to halt execution if needed
   }
 }
@@ -162,7 +219,7 @@ async function handleWalletConnection() {
 
     // Check if MetaMask is installed
     if (!window.ethereum) {
-      alert(
+      showToast(
         'MetaMask is not installed. Please install MetaMask to use this feature.'
       )
       return
@@ -194,7 +251,7 @@ async function handleWalletConnection() {
     }
   } catch (error) {
     console.error('Error handling wallet connection:', error)
-    alert('An error occurred while connecting to the wallet.')
+    showToast('An error occurred while connecting to the wallet.')
   }
 }
 
@@ -225,7 +282,7 @@ window.addEventListener('DOMContentLoaded', checkWalletConnection)
 async function connectWallet() {
   try {
     if (!window.ethereum) {
-      alert('Please install MetaMask')
+      showToast('Please install MetaMask')
       return
     }
 
@@ -254,7 +311,7 @@ async function connectWallet() {
     ])
   } catch (error) {
     console.error('Wallet connection failed:', error)
-    alert('Failed to connect wallet: ' + error.message)
+    showToast('Failed to connect wallet: ' + error.message)
   }
 }
 async function explorePool() {
@@ -392,7 +449,7 @@ async function approveToken0() {
     const amount0 = document.getElementById('amount0Input').value
 
     if (!amount0) {
-      alert('Please enter amounts for token 0')
+      showToast('Please enter amounts for token 0')
       return
     }
 
@@ -402,10 +459,10 @@ async function approveToken0() {
       .approve(CSAMM_CONTRACT_ADDRESS, amount0Wei)
       .send({ from: account })
 
-    alert('Tokens approved successfully!')
+    showToast('Token 0 approved successfully!')
   } catch (error) {
     console.error('Approval failed:', error)
-    alert('Failed to approve tokens: ' + error.message)
+    showToast('Failed to approve tokens: ' + error.message)
   }
 }
 
@@ -414,7 +471,7 @@ async function approveToken1() {
     const amount1 = document.getElementById('amount1Input').value
 
     if (!amount1) {
-      alert('Please enter amounts for token 1')
+      showToast('Please enter amounts for token 1')
       return
     }
 
@@ -424,10 +481,10 @@ async function approveToken1() {
       .approve(CSAMM_CONTRACT_ADDRESS, amount1Wei)
       .send({ from: account })
 
-    alert('Tokens approved successfully!')
+    showToast('Token 1 approved successfully!')
   } catch (error) {
     console.error('Approval failed:', error)
-    alert('Failed to approve tokens: ' + error.message)
+    showToast('Failed to approve tokens: ' + error.message)
   }
 }
 
@@ -437,7 +494,7 @@ async function addLiquidity() {
     const amount1 = document.getElementById('amount1Input').value
 
     if (!amount0 || !amount1) {
-      alert('Please enter amounts for both tokens')
+      showToast('Please enter amounts for both tokens')
       return
     }
 
@@ -450,12 +507,12 @@ async function addLiquidity() {
 
     await Promise.all([refreshBalances(), fetchVaultInfo()])
 
-    alert('Liquidity added successfully!')
+    showToast('Liquidity added successfully!')
     document.getElementById('amount0Input').value = ''
     document.getElementById('amount1Input').value = ''
   } catch (error) {
     console.error('Add liquidity failed:', error)
-    alert('Failed to add liquidity: ' + error.message)
+    showToast('Failed to add liquidity: ' + error.message)
   }
 }
 
@@ -464,7 +521,7 @@ async function removeLiquidity() {
     const sharesToRemove = document.getElementById('sharesToRemoveInput').value
 
     if (!sharesToRemove || parseFloat(sharesToRemove) <= 0) {
-      alert('Please enter a valid number of shares to remove')
+      showToast('Please enter a valid number of shares to remove')
       return
     }
 
@@ -476,11 +533,11 @@ async function removeLiquidity() {
 
     await Promise.all([refreshBalances(), fetchVaultInfo()])
 
-    alert('Liquidity removed successfully!')
+    showToast('Liquidity removed successfully!')
     document.getElementById('sharesToRemoveInput').value = ''
   } catch (error) {
     console.error('Remove liquidity failed:', error)
-    alert('Failed to remove liquidity: ' + error.message)
+    showToast('Failed to remove liquidity: ' + error.message)
   }
 }
 
@@ -674,6 +731,10 @@ document.addEventListener('DOMContentLoaded', () => {
   getAggregatorPools('POLYGON').then((pools) => {
     POLYGON_TREES = pools
   });
+
+  getAggregatorPools('BASE').then((pools) => {
+    BASE_TREES = pools
+  });
 })
 
 
@@ -777,9 +838,14 @@ function setupAndStartGame() {
 
   // console.log(treeZones)
 
-  const Polygon_trees = treeZones.filter(zone => (zone.position.x > 2000 && zone.position.y < 800))
+  const Polygon_trees = treeZones.filter(zone => (zone.position.x > 2200 && zone.position.y < 800))
   Polygon_trees.forEach(tree => {
     tree.applyFilter('hue-rotate(200deg)'); // Apply pink filter
+  });
+
+  const Base_trees = treeZones.filter(zone => (zone.position.x > 2000 && zone.position.y > 800))
+  Base_trees.forEach(tree => {
+    tree.applyFilter('hue-rotate(100deg)'); // Apply pink filter
   });
 
 
@@ -870,14 +936,15 @@ function setupAndStartGame() {
     }
   }
 
-  const movables = [background, ...boundaries, ...housesMap, ...treeZones, ...Polygon_trees]
+  const movables = [background, ...boundaries, ...housesMap, ...treeZones, ...Polygon_trees, ...Base_trees]
   const renderables = [
     background,
     ...boundaries,
     ...housesMap,
     player,
     ...treeZones,
-    ...Polygon_trees
+    ...Polygon_trees,
+    ...Base_trees
   ]
 
   function animate() {
@@ -946,6 +1013,17 @@ function setupAndStartGame() {
         treeVal = result.treeVal;
       }
 
+      if (player.interactionAsset === null) {
+        const result = checkForTree2Collision({
+          Base_trees,
+          player,
+          characterOffset: { x: 0, y: 3 }
+        })
+
+        islandVal = result.islandVal;
+        treeVal = result.treeVal;
+      }
+
       for (let i = 0; i < boundaries.length; i++) {
         const boundary = boundaries[i]
         if (
@@ -993,7 +1071,17 @@ function setupAndStartGame() {
           Polygon_trees,
           player,
           characterOffset: { x: 3, y: 0 },
-          treeVal
+        })
+
+        islandVal = result.islandVal;
+        treeVal = result.treeVal;
+      }
+
+      if (player.interactionAsset === null) {
+        const result = checkForTree2Collision({
+          Base_trees,
+          player,
+          characterOffset: { x: 3, y: 0 },
         })
 
         islandVal = result.islandVal;
@@ -1047,7 +1135,17 @@ function setupAndStartGame() {
           Polygon_trees,
           player,
           characterOffset: { x: 0, y: -3 },
-          treeVal
+        })
+
+        islandVal = result.islandVal;
+        treeVal = result.treeVal;
+      }
+
+      if (player.interactionAsset === null) {
+        const result = checkForTree2Collision({
+          Base_trees,
+          player,
+          characterOffset: { x: 0, y: -3 },
         })
 
         islandVal = result.islandVal;
@@ -1101,7 +1199,17 @@ function setupAndStartGame() {
           Polygon_trees,
           player,
           characterOffset: { x: -3, y: 0 },
-          treeVal
+        })
+
+        islandVal = result.islandVal;
+        treeVal = result.treeVal;
+      }
+
+      if (player.interactionAsset === null) {
+        const result = checkForTree2Collision({
+          Base_trees,
+          player,
+          characterOffset: { x: -3, y: 0 },
         })
 
         islandVal = result.islandVal;
@@ -1297,10 +1405,63 @@ function setupAndStartGame() {
           }
         } else {
 
-          if (islandVal > 0) {
+          if (islandVal === 1) {
             console.log(islandVal, treeVal)
             console.log(POLYGON_TREES[treeVal])
-            let data = POLYGON_TREES[treeVal]
+            let data = POLYGON_TREES[treeVal % 10]
+            document.querySelector('#characterDialogueBox').innerHTML = `
+<div class="space-y-6 w-full bg-gray-800 text-white p-6 max-h-[70vh] overflow-y-auto w-full rounded-lg shadow-lg max-w-4xl mx-auto">
+  <!-- Name and Address -->
+  <div class="w-full flex flex-col gap-2">
+    <h3 class="text-2xl font-semibold">${data.name}</h3>
+    <p class="text-xs font-mono text-gray-400">${data.address}</p>
+  </div>
+
+  <!-- Type and Chain -->
+  <div class="flex gap-6">
+    <div class="flex flex-col">
+      <p class="text-sm font-semibold text-gray-500">Type</p>
+      <p class="text-sm">${data.type}</p>
+    </div>
+    <div class="flex flex-col">
+      <p class="text-sm font-semibold text-gray-500">Chain</p>
+      <p class="text-sm">${data.chain}</p>
+    </div>
+  </div>
+
+  <!-- Pool Tokens Section -->
+  <div class="space-y-4">
+    <h3 class="text-xl font-semibold">Pool Tokens</h3>
+    <div class="space-y-4">
+      ${data.poolTokens.map((token, index) => `
+        <div class="flex flex-col gap-6 p-4 border border-gray-700 rounded-lg">
+          <div class="flex-1">
+            <p class="text-lg font-semibold">${token.symbol}</p>
+            <p class="text-sm text-gray-400">${token.name}</p>
+          </div>
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-gray-500">Address</p>
+            <p class="text-sm text-gray-400">${token.address}</p>
+          </div>
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-gray-500">Balance (USD)</p>
+            <p class="text-sm text-gray-400">${token.balanceUSD}</p>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+</div>
+
+              `;
+
+            document.querySelector('#characterDialogueBox').style.display = 'flex'
+            player.isInteracting = true
+          }
+          if (islandVal === 2) {
+            console.log(islandVal, treeVal)
+            console.log(BASE_TREES[treeVal])
+            let data = BASE_TREES[treeVal % 10]
             document.querySelector('#characterDialogueBox').innerHTML = `
 <div class="space-y-6 w-full bg-gray-800 text-white p-6 max-h-[70vh] overflow-y-auto w-full rounded-lg shadow-lg max-w-4xl mx-auto">
   <!-- Name and Address -->
