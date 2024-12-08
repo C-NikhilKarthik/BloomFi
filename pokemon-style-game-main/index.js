@@ -2,7 +2,11 @@
 let token0Contract
 let token1Contract
 
+let POLYGON_TREES
+
 const GEMINI_API_KEY = "AIzaSyADMHAZxAppXgeULpY-6G7FqD4pWYNIHQY";
+
+let islandVal
 
 // Function to fetch the Token ABI from the JSON file
 async function loadTokenAbi() {
@@ -668,7 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchPools()
 
   getAggregatorPools('POLYGON').then((pools) => {
-    console.log(pools);
+    POLYGON_TREES = pools
   });
 })
 
@@ -752,7 +756,8 @@ function setupAndStartGame() {
               y: i * Boundary.height + offset.y
             },
             scale: 3.2,
-            image: tree1Image
+            image: tree1Image,
+
           })
         )
 
@@ -771,6 +776,12 @@ function setupAndStartGame() {
   })
 
   // console.log(treeZones)
+
+  const Polygon_trees = treeZones.filter(zone => (zone.position.x > 2000 && zone.position.y < 800))
+  Polygon_trees.forEach(tree => {
+    tree.applyFilter('hue-rotate(200deg)'); // Apply pink filter
+  });
+
 
 
 
@@ -859,13 +870,14 @@ function setupAndStartGame() {
     }
   }
 
-  const movables = [background, ...boundaries, ...housesMap, ...treeZones]
+  const movables = [background, ...boundaries, ...housesMap, ...treeZones, ...Polygon_trees]
   const renderables = [
     background,
     ...boundaries,
     ...housesMap,
     player,
-    ...treeZones
+    ...treeZones,
+    ...Polygon_trees
   ]
 
   function animate() {
@@ -923,6 +935,17 @@ function setupAndStartGame() {
         })
       }
 
+      if (player.interactionAsset === null) {
+        const result = checkForTree1Collision({
+          Polygon_trees,
+          player,
+          characterOffset: { x: 0, y: 3 }
+        })
+
+        islandVal = result.islandVal;
+        treeVal = result.treeVal;
+      }
+
       for (let i = 0; i < boundaries.length; i++) {
         const boundary = boundaries[i]
         if (
@@ -963,6 +986,18 @@ function setupAndStartGame() {
           characterOffset: { x: 3, y: 0 },
           treeVal
         })
+      }
+
+      if (player.interactionAsset === null) {
+        const result = checkForTree1Collision({
+          Polygon_trees,
+          player,
+          characterOffset: { x: 3, y: 0 },
+          treeVal
+        })
+
+        islandVal = result.islandVal;
+        treeVal = result.treeVal;
       }
 
       for (let i = 0; i < boundaries.length; i++) {
@@ -1007,6 +1042,18 @@ function setupAndStartGame() {
         })
       }
 
+      if (player.interactionAsset === null) {
+        const result = checkForTree1Collision({
+          Polygon_trees,
+          player,
+          characterOffset: { x: 0, y: -3 },
+          treeVal
+        })
+
+        islandVal = result.islandVal;
+        treeVal = result.treeVal;
+      }
+
       for (let i = 0; i < boundaries.length; i++) {
         const boundary = boundaries[i]
         if (
@@ -1047,6 +1094,18 @@ function setupAndStartGame() {
           characterOffset: { x: -3, y: 0 },
           treeVal
         })
+      }
+
+      if (player.interactionAsset === null) {
+        const result = checkForTree1Collision({
+          Polygon_trees,
+          player,
+          characterOffset: { x: -3, y: 0 },
+          treeVal
+        })
+
+        islandVal = result.islandVal;
+        treeVal = result.treeVal;
       }
 
       for (let i = 0; i < boundaries.length; i++) {
@@ -1237,39 +1296,95 @@ function setupAndStartGame() {
 
           }
         } else {
-          console.log(treeVal)
-          CSAMM_CONTRACT_ADDRESS = pools[treeVal][0]
-          TOKEN0_CONTRACT_ADDRESS = pools[treeVal][1]
-          TOKEN1_CONTRACT_ADDRESS = pools[treeVal][2]
 
-          getTokensDetail(CSAMM_CONTRACT_ADDRESS)
-            .then(({ name, name1, url, url1 }) => {
-              document.querySelector('#characterDialogueBox').innerHTML = `
-            <div class='space-y-4 w-full'>
-              <div class="w-full flex gap-4 items-center">
-              <div class="relative w-28 h-16">
-                <img src="${url}" alt="${name}" class="absolute top-0 left-0 rounded-full object-cover h-16 w-16 border-2 border-white shadow-md" />
-                <img src="${url1}" alt="${name1}" class="absolute top-0 left-8 rounded-full object-cover h-16 w-16 border-2 border-white shadow-md" />
-              </div>
-                <h3 class="text-lg font-bold">${name} - ${name1}</h3>
-              </div>
+          if (islandVal > 0) {
+            console.log(islandVal, treeVal)
+            console.log(POLYGON_TREES[treeVal])
+            let data = POLYGON_TREES[treeVal]
+            document.querySelector('#characterDialogueBox').innerHTML = `
+<div class="space-y-6 w-full bg-gray-800 text-white p-6 max-h-[70vh] overflow-y-auto w-full rounded-lg shadow-lg max-w-4xl mx-auto">
+  <!-- Name and Address -->
+  <div class="w-full flex flex-col gap-2">
+    <h3 class="text-2xl font-semibold">${data.name}</h3>
+    <p class="text-xs font-mono text-gray-400">${data.address}</p>
+  </div>
 
-              <div class="w-full flex justify-between ">
-                <button class="p-4 py-2 bg-emerald-600 border hover:bg-emerald-700"  id="explore" onclick="explorePool()">Explore</button>
-                <button class="p-4 py-2 bg-rose-600 border hover:bg-rose-700">
-                    Cancel <span class="text-sm text-gray-300">[Esc]</span>
-                </button>
+  <!-- Type and Chain -->
+  <div class="flex gap-6">
+    <div class="flex flex-col">
+      <p class="text-sm font-semibold text-gray-500">Type</p>
+      <p class="text-sm">${data.type}</p>
+    </div>
+    <div class="flex flex-col">
+      <p class="text-sm font-semibold text-gray-500">Chain</p>
+      <p class="text-sm">${data.chain}</p>
+    </div>
+  </div>
+
+  <!-- Pool Tokens Section -->
+  <div class="space-y-4">
+    <h3 class="text-xl font-semibold">Pool Tokens</h3>
+    <div class="space-y-4">
+      ${data.poolTokens.map((token, index) => `
+        <div class="flex flex-col gap-6 p-4 border border-gray-700 rounded-lg">
+          <div class="flex-1">
+            <p class="text-lg font-semibold">${token.symbol}</p>
+            <p class="text-sm text-gray-400">${token.name}</p>
+          </div>
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-gray-500">Address</p>
+            <p class="text-sm text-gray-400">${token.address}</p>
+          </div>
+          <div class="flex-1">
+            <p class="text-sm font-semibold text-gray-500">Balance (USD)</p>
+            <p class="text-sm text-gray-400">${token.balanceUSD}</p>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+</div>
+
+              `;
+
+            document.querySelector('#characterDialogueBox').style.display = 'flex'
+            player.isInteracting = true
+          }
+          else {
+            console.log(treeVal)
+            CSAMM_CONTRACT_ADDRESS = pools[treeVal][0]
+            TOKEN0_CONTRACT_ADDRESS = pools[treeVal][1]
+            TOKEN1_CONTRACT_ADDRESS = pools[treeVal][2]
+
+            getTokensDetail(CSAMM_CONTRACT_ADDRESS)
+              .then(({ name, name1, url, url1 }) => {
+                document.querySelector('#characterDialogueBox').innerHTML = `
+              <div class='space-y-4 w-full'>
+                <div class="w-full flex gap-4 items-center">
+                <div class="relative w-28 h-16">
+                  <img src="${url}" alt="${name}" class="absolute top-0 left-0 rounded-full object-cover h-16 w-16 border-2 border-white shadow-md" />
+                  <img src="${url1}" alt="${name1}" class="absolute top-0 left-8 rounded-full object-cover h-16 w-16 border-2 border-white shadow-md" />
+                </div>
+                  <h3 class="text-lg font-bold">${name} - ${name1}</h3>
+                </div>
+  
+                <div class="w-full flex justify-between ">
+                  <button class="p-4 py-2 bg-emerald-600 border hover:bg-emerald-700"  id="explore" onclick="explorePool()">Explore</button>
+                  <button class="p-4 py-2 bg-rose-600 border hover:bg-rose-700">
+                      Cancel <span class="text-sm text-gray-300">[Esc]</span>
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-            `;
-            })
+              `;
+              })
 
 
 
 
-          document.querySelector('#characterDialogueBox').style.display = 'flex'
-          player.isInteracting = true
+            document.querySelector('#characterDialogueBox').style.display = 'flex'
+            player.isInteracting = true
+          }
         }
         break
       case 'w':

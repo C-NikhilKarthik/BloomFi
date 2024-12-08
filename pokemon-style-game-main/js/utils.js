@@ -102,7 +102,51 @@ function checkForTreeCollision({
   return newTreeVal;
 }
 
+// 
+function checkForTree1Collision({
+  Polygon_trees,
+  player,
+  characterOffset = { x: 0, y: 0 },
+  // islandVal
+}) {
+  player.interactionAsset = null;
+  let treeVal = -1;
+  let islandVal = 0
 
+
+  for (let i = 0; i < Polygon_trees.length; i++) {
+    const tree = Polygon_trees[i];
+    if (
+      rectangularCollision({
+        rectangle1: player,
+        rectangle2: {
+          ...tree,
+          position: {
+            x: tree.position.x + characterOffset.x,
+            y: tree.position.y + characterOffset.y
+          }
+        }
+      })
+    ) {
+      console.log('here')
+      player.interactionAsset = tree;
+      treeVal = i;
+      islandVal = 1
+      break;
+    }
+  }
+
+  // // Update global variables based on collision
+  // if (newTreeVal !== -1) {
+  //   window.treeVal = newTreeVal; // Set to 1 if collision is detected
+  //   window.islandVal = 1; // Set to 1 for island condition (you can modify this logic)
+  // } else {
+  //   window.treeVal = 0; // No collision detected
+  //   window.islandVal = 0; // You can change this condition to suit your needs
+  // }
+
+  return { islandVal, treeVal };
+}
 
 
 function checkForCharacterCollision({

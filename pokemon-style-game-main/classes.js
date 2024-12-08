@@ -7,50 +7,50 @@ class Sprite {
     sprites,
     animate = false,
     rotation = 0,
-    scale = 1
-    // opacity=1
+    scale = 1,
+    filter = '' // Default filter is empty (no filter applied initially)
   }) {
-
-    this.position = position
-    this.image = new Image()
-    this.frames = { ...frames, val: 0, elapsed: 0 }
+    this.position = position;
+    this.image = new Image();
+    this.frames = { ...frames, val: 0, elapsed: 0 };
     this.image.onload = () => {
+      this.width = (this.image.width / this.frames.max) * scale;
+      this.height = this.image.height * scale;
+    };
+    this.image.src = image.src;
 
-      this.width = (this.image.width / this.frames.max) * scale
-      this.height = this.image.height * scale
-    }
-    this.image.src = image.src
+    this.animate = animate;
+    this.sprites = sprites;
+    this.opacity = 1;
+    this.rotation = rotation;
+    this.scale = scale;
+    this.filter = filter; // Store the filter value
+  }
 
-    this.animate = animate
-    this.sprites = sprites
-    this.opacity = 1
-
-    this.rotation = rotation
-    this.scale = scale
+  // Method to apply a filter
+  applyFilter(newFilter) {
+    this.filter = newFilter;
   }
 
   faint() {
     const blinkTimeline = gsap.timeline();
 
-    // Create a blink effect by toggling opacity
-    blinkTimeline.to(this, { opacity: 0, duration: 0.1, repeat: 4, yoyo: true }) // Blink for ~2 seconds
-      // .to(this.position, { y: this.position.y + 20, duration: 0.5 }) // Move down after blinking
-      .to(this, { opacity: 0, duration: 0.5 }); // Finally fade out completely
+    blinkTimeline.to(this, { opacity: 0, duration: 0.1, repeat: 4, yoyo: true })
+      .to(this, { opacity: 0, duration: 0.5 });
   }
 
-
   draw() {
-    c.save()
+    c.save();
     c.translate(
       this.position.x + this.width / 2,
       this.position.y + this.height / 2
-    )
-    c.rotate(this.rotation)
+    );
+    c.rotate(this.rotation);
     c.translate(
       -this.position.x - this.width / 2,
       -this.position.y - this.height / 2
-    )
-    c.globalAlpha = this.opacity
+    );
+    c.globalAlpha = this.opacity;
 
     const crop = {
       position: {
@@ -59,7 +59,7 @@ class Sprite {
       },
       width: this.image.width / this.frames.max,
       height: this.image.height
-    }
+    };
 
     const image = {
       position: {
@@ -68,7 +68,10 @@ class Sprite {
       },
       width: this.image.width / this.frames.max,
       height: this.image.height
-    }
+    };
+
+    // Apply the filter if set
+    c.filter = this.filter;
 
     c.drawImage(
       this.image,
@@ -80,21 +83,19 @@ class Sprite {
       image.position.y,
       image.width * this.scale,
       image.height * this.scale
-    )
+    );
 
-    c.restore()
+    c.restore();
 
-
-
-    if (!this.animate) return
+    if (!this.animate) return;
 
     if (this.frames.max > 1) {
-      this.frames.elapsed++
+      this.frames.elapsed++;
     }
 
     if (this.frames.elapsed % this.frames.hold === 0) {
-      if (this.frames.val < this.frames.max - 1) this.frames.val++
-      else this.frames.val = 0
+      if (this.frames.val < this.frames.max - 1) this.frames.val++;
+      else this.frames.val = 0;
     }
   }
 }
