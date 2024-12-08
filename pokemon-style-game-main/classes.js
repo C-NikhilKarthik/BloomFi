@@ -17,7 +17,6 @@ class Sprite {
     this.image.onload = () => {
 
       this.width = (this.image.width / this.frames.max) * scale
-      console.log('w', this.width)
       this.height = this.image.height * scale
     }
     this.image.src = image.src

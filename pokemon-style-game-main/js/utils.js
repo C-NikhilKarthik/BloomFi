@@ -14,6 +14,8 @@ function checkForHouseCollision({
 }) {
   player.interactionAsset = null
   // monitor for character collision
+  let houseVal = -1;
+  // console.log(housesMap)
   for (let i = 0; i < housesMap.length; i++) {
     const house = housesMap[i]
     if (
@@ -29,9 +31,12 @@ function checkForHouseCollision({
       })
     ) {
       player.interactionAsset = house
+      houseVal = i;
       break
     }
   }
+
+  return houseVal;
 }
 
 // function checkForTreeCollision({
