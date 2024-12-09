@@ -797,15 +797,15 @@ function setupAndStartGame() {
 
   const tree1Image = new Image()
   tree1Image.src =
-    'https://aggregator.walrus-testnet.walrus.space/v1/L44d84wxVCelypd1nS4MjPGm2SddvhNLZ03-0SeJNhs'
+    './img/tree1.png'
 
   const tree2Image = new Image()
   tree2Image.src =
-    'https://aggregator.walrus-testnet.walrus.space/v1/7R6ynIQw4Va3beydbU-KkDgtWpgfWU1BsCxllrSIRWU'
+    './img/tree2.png'
 
   const tree3Image = new Image()
   tree3Image.src =
-    'https://aggregator.walrus-testnet.walrus.space/v1/fivcM3vYW8xFFuda9uBClU_SRNG8N1o5ZvCaE2UUxpg'
+    './img/tree3.png'
 
   const treeZones = []
   treeMap.forEach((row, i) => {
@@ -878,23 +878,23 @@ function setupAndStartGame() {
 
   const image = new Image()
   image.src =
-    'https://aggregator.walrus-testnet.walrus.space/v1/IVV2-TgQohZoNBs0rXx596wCo45356IEVS2eb3JNUKU'
+    './img/GameMapFinal.png'
 
   const playerDownImage = new Image()
   playerDownImage.src =
-    'https://aggregator.walrus-testnet.walrus.space/v1/ToX9bwgPq4MqKr7w_3dT8PZIKdcsJhpeG2qNW5ARWOE'
+    './img/playerDown.png'
 
   const playerUpImage = new Image()
   playerUpImage.src =
-    'https://aggregator.walrus-testnet.walrus.space/v1/cIAXDfy117Qe1UA1jcTNAz2ZlD7YfKwqtboUAVN6700'
+    './img/playerUp.png'
 
   const playerLeftImage = new Image()
   playerLeftImage.src =
-    'https://aggregator.walrus-testnet.walrus.space/v1/FVYt9T7wBJR9BNTjt0O2UkIeeMuR9V7lut9-O7hw5_k'
+    './img/playerLeft.png'
 
   const playerRightImage = new Image()
   playerRightImage.src =
-    'https://aggregator.walrus-testnet.walrus.space/v1/yKa29JOw9HjmyazBx7JMeO0fg9C2NzBjBO_zc-ATnwY'
+    './img/playerRight.png'
 
   const player = new Sprite({
     position: {

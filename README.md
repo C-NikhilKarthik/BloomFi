@@ -1,5 +1,11 @@
 # BloomFi
 
+## Live Website Link
+
+[https://bloom-fi.vercel.app/](https://bloom-fi.vercel.app/)
+
+**Note:** Please make sure to log in or connect your wallet with MetaMask before continuing with the game.
+
 ## Project Overview
 
 This project transforms traditional DeFi liquidity pools into an engaging and interactive gaming experience, designed to simplify complex investment strategies for users. The gamified interface helps users intuitively explore and interact with liquidity pools, represented as trees in a dynamic virtual ecosystem. By merging game mechanics with DeFi principles, we aim to make decentralized finance more accessible, fun, and personalized.
