@@ -1,4 +1,4 @@
-# BloomFi
+# BloomFi - **ETHIndia’24 Huddle01 dRTC Track Runner Up** - December 2024
 
 ## Live Website Link
 
